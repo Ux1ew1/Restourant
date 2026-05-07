@@ -6,3 +6,180 @@ datasource db {
   provider = "postgresql"
 }
 
+/// Роли пользователей в системе
+enum Role {
+  GUEST
+  USER
+  ADMIN
+}
+
+/// Пользователь сайта (клиент или администратор)
+model User {
+  id           String   @id @default(cuid())
+  name         String?
+  email        String   @unique
+  phone        String?
+  passwordHash String
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now())
+
+  orders Order[]
+}
+
+/// Город (витрина и заведения привязаны к городу)
+model City {
+  id       String  @id @default(cuid())
+  name     String
+  slug     String  @unique
+  isActive Boolean @default(true)
+
+  venues Venue[]
+}
+
+/// Заведение (точка) внутри города
+model Venue {
+  id       String  @id @default(cuid())
+  name     String
+  slug     String
+  cityId   String
+  address  String
+  phone    String?
+  /// URL логотипа. Может быть пустым — UI показывает заглушку
+  logoUrl  String?
+  isActive Boolean @default(true)
+
+  city City @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  categories      Category[]
+  products        Product[]
+  orders          Order[]
+  newsItems       NewsItem[]
+  popularProducts PopularProduct[]
+
+  @@unique([cityId, slug])
+  @@index([cityId])
+}
+
+/// Категория меню конкретного заведения
+model Category {
+  id        String  @id @default(cuid())
+  name      String
+  slug      String
+  venueId   String
+  sortOrder Int     @default(0)
+  isActive  Boolean @default(true)
+
+  venue    Venue     @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  products Product[]
+
+  @@unique([venueId, slug])
+  @@index([venueId])
+}
+
+/// Товар (позиция меню) конкретного заведения
+model Product {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String
+  description String?
+  /// URL изображения. Может быть пустым — UI показывает заглушку
+  imageUrl    String?
+  /// Граммовки и объёмы, например "250г / 300мл". Свободная строка
+  weight      String?
+  composition String?
+  /// Цена в копейках
+  price       Int
+
+  categoryId String
+  venueId    String
+
+  /// Если true — товар не отображается в публичном меню, но не удалён
+  isHidden   Boolean @default(false)
+  /// Если true — товар временно недоступен (стоп-лист)
+  isStopList Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  venue    Venue    @relation(fields: [venueId], references: [id], onDelete: Cascade)
+
+  orderItems      OrderItem[]
+  popularProducts PopularProduct[]
+
+  @@unique([venueId, slug])
+  @@index([venueId, categoryId])
+}
+
+/// Заказ пользователя
+model Order {
+  id            String    @id @default(cuid())
+  userId        String?
+  venueId       String
+  type          String
+  status        String
+  /// Сумма заказа в копейках
+  totalPrice    Int
+  address       String?
+  phone         String
+  paymentMethod String
+  changeFrom    Int?
+  deliveryTime  DateTime?
+  comment       String?
+  createdAt     DateTime  @default(now())
+
+  user  User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  venue Venue @relation(fields: [venueId], references: [id], onDelete: Cascade)
+
+  items OrderItem[]
+
+  @@index([venueId, createdAt])
+  @@index([userId, createdAt])
+}
+
+/// Позиция в заказе
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  /// Цена в копейках на момент заказа (фиксируется)
+  price     Int
+  wishes    String?
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+/// Новостной баннер/акция (может быть глобальной или привязанной к заведению)
+model NewsItem {
+  id          String   @id @default(cuid())
+  venueId     String?
+  title       String
+  imageUrl    String?
+  content     String?
+  isActive    Boolean  @default(true)
+  publishedAt DateTime @default(now())
+
+  venue Venue? @relation(fields: [venueId], references: [id], onDelete: SetNull)
+
+  @@index([venueId])
+  @@index([isActive, publishedAt])
+}
+
+/// Список популярных товаров на главной для заведения
+model PopularProduct {
+  id        String @id @default(cuid())
+  venueId   String
+  productId String
+  sortOrder Int    @default(0)
+
+  venue   Venue   @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([venueId, productId])
+  @@index([venueId, sortOrder])
+}

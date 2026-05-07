@@ -5,6 +5,9 @@
 | Дата | Версия | Изменения |
 |------|--------|-----------|
 | 07.05.2026 | 1.0 | Инициализация проекта (Этап 0) |
+| 07.05.2026 | 1.1 | Схема БД и seed (Этап 1) |
+| 07.05.2026 | 1.2 | Аутентификация и роли (Этап 2) |
+| 07.05.2026 | 1.3 | Выбор города и заведения (Этап 3) |
 
 ---
 
@@ -32,11 +35,12 @@
 | `tsconfig.json` | TypeScript + абсолютные импорты `@/` |
 | `tailwind.config.ts` | Тема Tailwind с палитрой `vanilla-*` |
 | `postcss.config.mjs` | PostCSS-плагин Tailwind v4 |
-| `eslint.config.mjs` | ESLint (flat config) |
+| `.eslintrc.json` | ESLint конфигурация (Next.js preset) |
 | `.prettierrc.json` | Prettier + сортировка классов Tailwind |
 | `.env.example` | Шаблон переменных окружения |
 | `docker-compose.yml` | Локальный PostgreSQL (stage/dev) |
-| `prisma/schema.prisma` | Prisma: generator/datasource |
+| `prisma.config.ts` | Конфигурация Prisma CLI (Prisma v7) |
+| `prisma/schema.prisma` | Prisma schema (модели, enum'ы, связи) |
 | `src/app/layout.tsx` | Root layout (`lang="ru"`) |
 | `src/app/globals.css` | Глобальные стили + Tailwind директивы |
 | `src/lib/prisma.ts` | Синглтон Prisma Client |
@@ -55,13 +59,117 @@
 - Prettier + `prettier-plugin-tailwindcss`
 
 ## 2. База данных
-[Заполняется после Этапа 1]
+
+**Этап roadmap:** 1  
+**Дата выполнения:** 07.05.2026
+
+### Что реализовано
+
+- Описана схема БД в `prisma/schema.prisma` (User/City/Venue/Category/Product/Order/OrderItem/NewsItem/PopularProduct + enum `Role`).
+- Подготовлены уникальности, индексы и каскадные правила удаления.
+- Добавлен `prisma/seed.ts` с тестовыми данными (1 город, 2 заведения, категории, товары, админ).
+- Настроен Prisma CLI под Prisma v7 через `prisma.config.ts` (подключение URL и команда seed).
+- Обновлён `src/lib/prisma.ts` под Prisma v7 + PostgreSQL driver adapter (`@prisma/adapter-pg`).
+
+### Ключевые файлы
+
+| Файл | Назначение |
+|------|-----------|
+| `prisma/schema.prisma` | Модели и связи БД |
+| `prisma.config.ts` | URL datasource и конфиг миграций/seed для Prisma CLI |
+| `prisma/seed.ts` | Заполнение БД тестовыми данными |
+| `src/lib/prisma.ts` | Prisma Client с PostgreSQL adapter |
+
+### Схема данных (кратко)
+
+- `User` — пользователи, роль `Role` (GUEST/USER/ADMIN)
+- `City` → `Venue` → (`Category`, `Product`)
+- `Order` + `OrderItem` — заказы и позиции заказа
+- `NewsItem` — новости/баннеры (опционально по заведению)
+- `PopularProduct` — популярные позиции по заведению
+
+### Особенности и ограничения
+
+- Для выполнения миграций нужен доступный PostgreSQL. Если Docker не установлен, используйте облачный PostgreSQL и укажите его в `DATABASE_URL`, либо установите Docker Desktop и поднимите БД через `docker-compose.yml`.
 
 ## 3. Аутентификация
-[Заполняется после Этапа 2]
+
+**Этап roadmap:** 2  
+**Дата выполнения:** 07.05.2026
+
+### Что реализовано
+
+- Настроен NextAuth v5 (Auth.js) с Credentials провайдером (email + пароль).
+- Пароли хранятся в БД в виде `passwordHash` (bcrypt).
+- JWT и Session расширены полями пользователя: `id`, `role`, `phone`.
+- Реализована регистрация пользователя через `POST /api/auth/register`.
+- Добавлены страницы входа и регистрации: `src/app/(auth)/login/page.tsx`, `src/app/(auth)/register/page.tsx`.
+- Добавлен middleware, защищающий `/admin` (только роль `ADMIN`).
+- Добавлен хук `useCurrentUser` для получения текущего пользователя на клиенте.
+
+### Ключевые файлы
+
+| Файл | Назначение |
+|------|-----------|
+| `src/lib/auth.ts` | NextAuth конфигурация (Credentials + callbacks) |
+| `src/types/next-auth.d.ts` | Расширение типов Session/JWT (id/role/phone) |
+| `src/app/api/auth/[...nextauth]/route.ts` | NextAuth route handler |
+| `src/app/api/auth/register/route.ts` | Регистрация пользователя |
+| `src/lib/validations/auth.schema.ts` | Zod-схемы login/register |
+| `src/app/(auth)/login/page.tsx` | UI входа (RHF + Zod) |
+| `src/app/(auth)/register/page.tsx` | UI регистрации (RHF + Zod) |
+| `src/middleware.ts` | Защита `/admin` только для `ADMIN` |
+| `src/hooks/useCurrentUser.ts` | Хук текущего пользователя |
+
+### API-эндпоинты
+
+| Метод | Путь | Описание | Параметры |
+|-------|------|----------|-----------|
+| POST | `/api/auth/register` | Регистрация пользователя | `name?: string, email: string, phone?: string, password: string` |
+| GET/POST | `/api/auth/[...nextauth]` | NextAuth handler (signin/signout/session) | — |
+
+### Особенности и ограничения
+
+- На этапе 2 используется только Credentials (без OAuth провайдеров).
+- Middleware для `/admin` перенаправляет не-ADMIN на `/login?callbackUrl=/admin/...`.
 
 ## 4. Выбор города и заведения
-[Заполняется после Этапа 3]
+
+**Этап roadmap:** 3  
+**Дата выполнения:** 07.05.2026
+
+### Что реализовано
+
+- Добавлен Zustand-стор выбора города/заведения с `persist` в `localStorage`.
+- Реализовано модальное окно выбора города с загрузкой из API.
+- Реализован слайд-экран выбора заведения (выезжающая панель) на Framer Motion.
+- При первом визите, если выбор не сохранён, UI автоматически запускает сценарий выбора.
+- Выбор сохраняется в `localStorage`, при повторном визите модалки не показываются.
+- Добавлены API-эндпоинты для получения городов и заведений.
+
+### Ключевые файлы
+
+| Файл | Назначение |
+|------|-----------|
+| `src/store/venueStore.ts` | Zustand store (selectedCity/selectedVenue) + persist |
+| `src/hooks/useVenue.ts` | Удобный доступ к store |
+| `src/components/modals/CityModal.tsx` | Модалка выбора города |
+| `src/components/modals/VenueModal.tsx` | Слайд выбора заведения (Framer Motion) |
+| `src/app/api/cities/route.ts` | `GET /api/cities` |
+| `src/app/api/venues/route.ts` | `GET /api/venues?cityId=` |
+| `src/app/(public)/page.tsx` | Интеграция выбора на главной и авто-показ |
+
+### API-эндпоинты
+
+| Метод | Путь | Описание | Параметры |
+|-------|------|----------|-----------|
+| GET | `/api/cities` | Список активных городов | — |
+| GET | `/api/venues` | Заведения по городу | `cityId: string` |
+
+### Особенности и ограничения
+
+- Сценарий выбора реализован на клиенте, поэтому зависит от доступности `localStorage`.
+- На текущем этапе интеграция сделана на главной странице как демонстрация; дальше выбор будет использован в `Header`, меню и API-запросах.
 
 ## 5. Шапка и навигация
 [Заполняется после Этапа 4]

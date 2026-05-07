@@ -7,70 +7,70 @@
 
 ## Этап 0 — Инициализация проекта
 
-- [ ] Создать проект Next.js 14+ с App Router и TypeScript (`create-next-app`)
-- [ ] Настроить Tailwind CSS с кастомной темой (ванильная палитра: `#FAF7F0`, `#F5EFE6`, `#E8DCC8`, акцент `#C4A882`)
-- [ ] Установить и настроить ESLint + Prettier
-- [ ] Настроить абсолютные импорты через `@/` в `tsconfig.json`
-- [ ] Установить Prisma и подключить к PostgreSQL (локально через Docker или облачный экземпляр)
-- [ ] Создать `.env.example` со всеми необходимыми переменными окружения
-- [ ] Установить NextAuth.js v5 (Auth.js) и настроить базовую конфигурацию
-- [ ] Установить Zustand, Framer Motion, React Hook Form, Zod
-- [ ] Создать базовую структуру директорий (`src/app`, `src/components`, `src/lib`, `src/store`, `src/hooks`, `src/types`)
-- [ ] Настроить `next.config.ts` (домены изображений, локаль `ru`)
-- [ ] Создать `public/images/placeholder/` с заглушками изображений товаров
-- [ ] Инициализировать git-репозиторий и сделать первый коммит
-- [ ] **Обновить `docs/site-documentation.md` — раздел «Инфраструктура и конфигурация»**
+- [x] Создать проект Next.js 14+ с App Router и TypeScript (`create-next-app`)
+- [x] Настроить Tailwind CSS с кастомной темой (ванильная палитра: `#FAF7F0`, `#F5EFE6`, `#E8DCC8`, акцент `#C4A882`)
+- [x] Установить и настроить ESLint + Prettier
+- [x] Настроить абсолютные импорты через `@/` в `tsconfig.json`
+- [x] Установить Prisma и подключить к PostgreSQL (локально через Docker или облачный экземпляр)
+- [x] Создать `.env.example` со всеми необходимыми переменными окружения
+- [x] Установить NextAuth.js v5 (Auth.js) и настроить базовую конфигурацию
+- [x] Установить Zustand, Framer Motion, React Hook Form, Zod
+- [x] Создать базовую структуру директорий (`src/app`, `src/components`, `src/lib`, `src/store`, `src/hooks`, `src/types`)
+- [x] Настроить `next.config.ts` (домены изображений, локаль `ru`)
+- [x] Создать `public/images/placeholder/` с заглушками изображений товаров
+- [x] Инициализировать git-репозиторий и сделать первый коммит
+- [x] **Обновить `docs/site-documentation.md` — раздел «Инфраструктура и конфигурация»**
 
 ---
 
 ## Этап 1 — Схема базы данных
 
-- [ ] Спроектировать и написать `prisma/schema.prisma`:
-  - [ ] Модель `User` (id, name, email, phone, passwordHash, role, createdAt)
-  - [ ] Enum `Role` (GUEST, USER, ADMIN)
-  - [ ] Модель `City` (id, name, slug, isActive)
-  - [ ] Модель `Venue` (id, name, slug, cityId, address, phone, logoUrl, isActive)
-  - [ ] Модель `Category` (id, name, slug, venueId, sortOrder, isActive)
-  - [ ] Модель `Product` (id, name, slug, description, imageUrl, weight, composition, price, categoryId, venueId, isHidden, isStopList, createdAt, updatedAt)
-  - [ ] Модель `Order` (id, userId?, venueId, type, status, totalPrice, address, phone, paymentMethod, changeFrom, deliveryTime, comment, createdAt)
-  - [ ] Модель `OrderItem` (id, orderId, productId, quantity, price, wishes)
-  - [ ] Модель `NewsItem` (id, venueId?, title, imageUrl, content, isActive, publishedAt)
-  - [ ] Модель `PopularProduct` (id, venueId, productId, sortOrder)
-- [ ] Написать первую миграцию (`prisma migrate dev`)
-- [ ] Написать seed-файл `prisma/seed.ts` с тестовыми данными (1 город, 2 заведения, категории, 5–10 товаров, 1 администратор)
-- [ ] Создать `src/lib/prisma.ts` — синглтон Prisma Client
-- [ ] **Обновить `docs/site-documentation.md` — раздел «База данных»**
+- [x] Спроектировать и написать `prisma/schema.prisma`:
+  - [x] Модель `User` (id, name, email, phone, passwordHash, role, createdAt)
+  - [x] Enum `Role` (GUEST, USER, ADMIN)
+  - [x] Модель `City` (id, name, slug, isActive)
+  - [x] Модель `Venue` (id, name, slug, cityId, address, phone, logoUrl, isActive)
+  - [x] Модель `Category` (id, name, slug, venueId, sortOrder, isActive)
+  - [x] Модель `Product` (id, name, slug, description, imageUrl, weight, composition, price, categoryId, venueId, isHidden, isStopList, createdAt, updatedAt)
+  - [x] Модель `Order` (id, userId?, venueId, type, status, totalPrice, address, phone, paymentMethod, changeFrom, deliveryTime, comment, createdAt)
+  - [x] Модель `OrderItem` (id, orderId, productId, quantity, price, wishes)
+  - [x] Модель `NewsItem` (id, venueId?, title, imageUrl, content, isActive, publishedAt)
+  - [x] Модель `PopularProduct` (id, venueId, productId, sortOrder)
+- [x] Написать первую миграцию (`prisma migrate dev`)
+- [x] Написать seed-файл `prisma/seed.ts` с тестовыми данными (1 город, 2 заведения, категории, 5–10 товаров, 1 администратор)
+- [x] Создать `src/lib/prisma.ts` — синглтон Prisma Client
+- [x] **Обновить `docs/site-documentation.md` — раздел «База данных»**
 
 ---
 
 ## Этап 2 — Аутентификация и роли
 
-- [ ] Настроить NextAuth.js: провайдер Credentials (email + пароль)
-- [ ] Реализовать хеширование паролей (bcrypt)
-- [ ] Расширить сессию NextAuth — добавить `role`, `id`, `phone` в токен
-- [ ] Создать страницу входа `src/app/(auth)/login/page.tsx`
-- [ ] Создать страницу регистрации `src/app/(auth)/register/page.tsx`
-- [ ] Настроить middleware (`src/middleware.ts`) — защита маршрутов `/admin` (только ADMIN)
-- [ ] Реализовать API-маршруты:
-  - [ ] `POST /api/auth/register` — регистрация пользователя
-  - [ ] NextAuth встроенный `[...nextauth]` для входа/выхода
-- [ ] Создать хук `useCurrentUser` для получения текущего пользователя на клиенте
-- [ ] **Обновить `docs/site-documentation.md` — раздел «Аутентификация»**
+- [x] Настроить NextAuth.js: провайдер Credentials (email + пароль)
+- [x] Реализовать хеширование паролей (bcrypt)
+- [x] Расширить сессию NextAuth — добавить `role`, `id`, `phone` в токен
+- [x] Создать страницу входа `src/app/(auth)/login/page.tsx`
+- [x] Создать страницу регистрации `src/app/(auth)/register/page.tsx`
+- [x] Настроить middleware (`src/middleware.ts`) — защита маршрутов `/admin` (только ADMIN)
+- [x] Реализовать API-маршруты:
+  - [x] `POST /api/auth/register` — регистрация пользователя
+  - [x] NextAuth встроенный `[...nextauth]` для входа/выхода
+- [x] Создать хук `useCurrentUser` для получения текущего пользователя на клиенте
+- [x] **Обновить `docs/site-documentation.md` — раздел «Аутентификация»**
 
 ---
 
 ## Этап 3 — Выбор города и заведения
 
-- [ ] Создать Zustand-стор `src/store/venueStore.ts` (selectedCity, selectedVenue, persist в localStorage)
-- [ ] Создать модальное окно выбора города `src/components/modals/CityModal.tsx` (заглушка — 1 город)
-- [ ] Реализовать анимацию слайда вправо на выбор заведения (Framer Motion)
-- [ ] Создать экран выбора заведения `src/components/modals/VenueModal.tsx` (карточки заведений с логотипом и адресом)
-- [ ] При первом визите автоматически показывать модальное окно
-- [ ] Сохранять выбор в `localStorage` — при повторном визите пропускать модальное окно
-- [ ] Реализовать API-маршруты:
-  - [ ] `GET /api/cities` — список городов
-  - [ ] `GET /api/venues?cityId=` — заведения по городу
-- [ ] **Обновить `docs/site-documentation.md` — раздел «Выбор города и заведения»**
+- [x] Создать Zustand-стор `src/store/venueStore.ts` (selectedCity, selectedVenue, persist в localStorage)
+- [x] Создать модальное окно выбора города `src/components/modals/CityModal.tsx` (заглушка — 1 город)
+- [x] Реализовать анимацию слайда вправо на выбор заведения (Framer Motion)
+- [x] Создать экран выбора заведения `src/components/modals/VenueModal.tsx` (карточки заведений с логотипом и адресом)
+- [x] При первом визите автоматически показывать модальное окно
+- [x] Сохранять выбор в `localStorage` — при повторном визите пропускать модальное окно
+- [x] Реализовать API-маршруты:
+  - [x] `GET /api/cities` — список городов
+  - [x] `GET /api/venues?cityId=` — заведения по городу
+- [x] **Обновить `docs/site-documentation.md` — раздел «Выбор города и заведения»**
 
 ---
 
