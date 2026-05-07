@@ -1,0 +1,353 @@
+---
+alwaysApply: false
+---
+# Стек технологий и структура проекта
+
+## Стек технологий
+
+### Frontend / Fullstack
+
+| Технология | Версия | Назначение |
+|---|---|---|
+| **Next.js** | 14+ (App Router) | SSR/SSG/ISR, маршрутизация, API Route Handlers. Выбран за нативную поддержку SEO, единый деплой фронта и бэкенда, React Server Components |
+| **TypeScript** | 5+ | Строгая типизация, автодополнение, снижение ошибок в рантайме |
+| **Tailwind CSS** | 3+ | Утилитарный CSS-фреймворк. Вся тема (цвета, шрифты, отступы) задаётся через `tailwind.config.ts` |
+| **Framer Motion** | 11+ | Анимации: модальные окна, слайды, hover-эффекты, scroll-linked анимации |
+| **Zustand** | 4+ | Лёгкий менеджер состояния для корзины, выбранного заведения и пользователя. Данные персистируются в `localStorage` через `zustand/middleware` |
+| **React Hook Form** | 7+ | Производительные формы без лишних ре-рендеров |
+| **Zod** | 3+ | Схемы валидации форм и API-ответов. Используется совместно с React Hook Form через `@hookform/resolvers/zod` |
+
+### Backend (встроен в Next.js)
+
+| Технология | Версия | Назначение |
+|---|---|---|
+| **Next.js Route Handlers** | — | REST API маршруты в `/src/app/api/`. Позволяет использовать тот же деплой без отдельного сервера |
+| **Prisma ORM** | 5+ | Типобезопасный ORM для работы с PostgreSQL. Управление миграциями, генерация клиента |
+| **PostgreSQL** | 15+ | Основная реляционная БД |
+| **NextAuth.js v5** (Auth.js) | 5+ | Аутентификация через провайдер Credentials, JWT-сессии, расширенные поля (role, phone) |
+| **bcrypt** | — | Хеширование паролей перед сохранением в БД |
+
+### Инфраструктура и инструменты
+
+| Технология | Назначение |
+|---|---|
+| **Vercel** | Рекомендуемая платформа для деплоя Next.js. Альтернатива: VPS + Docker + Nginx |
+| **Docker** | Локальное окружение PostgreSQL через `docker-compose.yml` |
+| **next-sitemap** | Автоматическая генерация `sitemap.xml` и `robots.txt` при каждом билде |
+| **next/image** | Оптимизация изображений: lazy loading, modern форматы (WebP/AVIF), responsive sizes |
+| **Cloudinary** (опционально) | Хранение и трансформация изображений товаров. Альтернатива: локальное хранение в `public/` |
+
+---
+
+## Цветовая палитра (Tailwind тема)
+
+```
+vanilla-50:  #FDFAF4   ← фон страниц
+vanilla-100: #FAF7F0   ← фон карточек
+vanilla-200: #F5EFE6   ← бордеры, разделители
+vanilla-300: #E8DCC8   ← hover-состояния
+vanilla-400: #D4C4A0   ← вторичный текст
+vanilla-500: #C4A882   ← акцентный цвет (кнопки, активные элементы)
+vanilla-600: #A8895E   ← hover акцента
+vanilla-700: #8B6B3D   ← тёмный акцент
+vanilla-800: #5C4427   ← заголовки
+vanilla-900: #3A2A17   ← основной текст
+```
+
+---
+
+## Структура файлов проекта
+
+```
+restourant/
+│
+├── docs/                              # Документация проекта
+│   ├── roadmap.md                     # Пошаговый план разработки
+│   ├── project-structure.mdc          # Этот файл
+│   ├── rules-documentation.mdc        # Правила документирования кода
+│   └── site-documentation.md          # Живая документация (дополняется после каждого этапа)
+│
+├── prisma/
+│   ├── schema.prisma                  # Схема БД: модели, связи, enum'ы
+│   ├── migrations/                    # Автогенерируемые SQL-миграции
+│   └── seed.ts                        # Заполнение БД тестовыми данными
+│
+├── public/
+│   ├── favicon.ico
+│   ├── og-image.jpg                   # Open Graph изображение по умолчанию
+│   └── images/
+│       └── placeholder/
+│           ├── product-placeholder.jpg  # Заглушка для товаров без фото
+│           └── venue-placeholder.jpg    # Заглушка для заведений без логотипа
+│
+├── src/
+│   │
+│   ├── app/                           # Next.js App Router
+│   │   │
+│   │   ├── (public)/                  # Route group: публичные страницы
+│   │   │   ├── layout.tsx             # Layout с Header и Footer
+│   │   │   ├── page.tsx               # Главная страница (баннеры, популярные)
+│   │   │   ├── menu/
+│   │   │   │   └── page.tsx           # Страница меню с категориями и товарами
+│   │   │   ├── product/
+│   │   │   │   └── [id]/
+│   │   │   │       └── page.tsx       # Страница конкретного товара
+│   │   │   ├── cart/
+│   │   │   │   └── page.tsx           # Корзина
+│   │   │   ├── checkout/
+│   │   │   │   └── page.tsx           # Оформление заказа (доставка/самовывоз)
+│   │   │   └── order/
+│   │   │       └── [id]/
+│   │   │           └── page.tsx       # Подтверждение и статус заказа
+│   │   │
+│   │   ├── (auth)/                    # Route group: аутентификация
+│   │   │   ├── layout.tsx             # Минималистичный layout без Header
+│   │   │   ├── login/
+│   │   │   │   └── page.tsx           # Страница входа
+│   │   │   └── register/
+│   │   │       └── page.tsx           # Страница регистрации
+│   │   │
+│   │   ├── admin/                     # Административная панель
+│   │   │   ├── layout.tsx             # Layout с боковым меню администратора
+│   │   │   ├── page.tsx               # Главная: лента заказов
+│   │   │   ├── menu/
+│   │   │   │   ├── page.tsx           # Список товаров
+│   │   │   │   ├── [id]/
+│   │   │   │   │   └── page.tsx       # Редактирование товара
+│   │   │   │   └── categories/
+│   │   │   │       └── page.tsx       # Управление категориями
+│   │   │   ├── venues/
+│   │   │   │   └── page.tsx           # Управление заведениями и городами
+│   │   │   ├── news/
+│   │   │   │   └── page.tsx           # Управление баннерами и новостями
+│   │   │   ├── popular/
+│   │   │   │   └── page.tsx           # Управление популярными позициями
+│   │   │   ├── users/
+│   │   │   │   └── page.tsx           # Управление пользователями и ролями
+│   │   │   └── stats/
+│   │   │       └── page.tsx           # Статистика заказов
+│   │   │
+│   │   ├── api/                       # REST API Route Handlers
+│   │   │   ├── auth/
+│   │   │   │   ├── [...nextauth]/
+│   │   │   │   │   └── route.ts       # NextAuth обработчик
+│   │   │   │   └── register/
+│   │   │   │       └── route.ts       # POST /api/auth/register
+│   │   │   ├── cities/
+│   │   │   │   └── route.ts           # GET /api/cities
+│   │   │   ├── venues/
+│   │   │   │   └── route.ts           # GET /api/venues?cityId=
+│   │   │   ├── categories/
+│   │   │   │   └── route.ts           # GET /api/categories?venueId=
+│   │   │   ├── products/
+│   │   │   │   ├── route.ts           # GET /api/products?venueId=&categoryId=
+│   │   │   │   ├── popular/
+│   │   │   │   │   └── route.ts       # GET /api/products/popular?venueId=
+│   │   │   │   └── [id]/
+│   │   │   │       └── route.ts       # GET /api/products/[id]
+│   │   │   ├── news/
+│   │   │   │   └── route.ts           # GET /api/news?venueId=
+│   │   │   ├── orders/
+│   │   │   │   ├── route.ts           # POST /api/orders
+│   │   │   │   └── [id]/
+│   │   │   │       └── route.ts       # GET /api/orders/[id]
+│   │   │   └── admin/                 # Защищённые admin-эндпоинты
+│   │   │       ├── orders/
+│   │   │       │   ├── route.ts       # GET /api/admin/orders
+│   │   │       │   └── [id]/
+│   │   │       │       └── route.ts   # PATCH /api/admin/orders/[id]
+│   │   │       ├── products/
+│   │   │       │   ├── route.ts       # GET, POST /api/admin/products
+│   │   │       │   └── [id]/
+│   │   │       │       └── route.ts   # PATCH, DELETE /api/admin/products/[id]
+│   │   │       ├── venues/
+│   │   │       │   └── route.ts       # GET, POST, PATCH /api/admin/venues
+│   │   │       ├── users/
+│   │   │       │   └── route.ts       # GET, PATCH /api/admin/users
+│   │   │       └── stats/
+│   │   │           └── route.ts       # GET /api/admin/stats
+│   │   │
+│   │   ├── layout.tsx                 # Root layout (шрифты, провайдеры)
+│   │   ├── globals.css                # Глобальные стили, CSS-переменные Tailwind
+│   │   └── not-found.tsx              # Кастомная страница 404
+│   │
+│   ├── components/
+│   │   │
+│   │   ├── ui/                        # Базовые переиспользуемые UI-компоненты
+│   │   │   ├── Button.tsx
+│   │   │   ├── Input.tsx
+│   │   │   ├── Modal.tsx
+│   │   │   ├── Badge.tsx
+│   │   │   ├── Spinner.tsx
+│   │   │   ├── ImageWithFallback.tsx  # next/image с заглушкой при отсутствии фото
+│   │   │   └── index.ts               # Реэкспорт всех UI-компонентов
+│   │   │
+│   │   ├── layout/
+│   │   │   ├── Header.tsx             # Шапка: заведение, адрес, корзина, профиль
+│   │   │   ├── Footer.tsx             # Подвал: контакты, ссылки
+│   │   │   └── AdminSidebar.tsx       # Боковое меню административной панели
+│   │   │
+│   │   ├── modals/
+│   │   │   ├── CityModal.tsx          # Модальное окно выбора города
+│   │   │   └── VenueModal.tsx         # Слайд выбора заведения
+│   │   │
+│   │   ├── home/
+│   │   │   ├── NewsBanner.tsx         # Слайдер новостных баннеров
+│   │   │   ├── PopularProducts.tsx    # Горизонтальная полоса популярных позиций
+│   │   │   └── CategoryNav.tsx        # Быстрые ссылки на категории
+│   │   │
+│   │   ├── menu/
+│   │   │   ├── CategorySidebar.tsx    # Вкладки/список категорий меню
+│   │   │   ├── ProductGrid.tsx        # Сетка карточек товаров
+│   │   │   └── ProductCard.tsx        # Карточка товара в списке
+│   │   │
+│   │   ├── product/
+│   │   │   ├── ProductDetail.tsx      # Детальный вид товара
+│   │   │   └── QuantitySelector.tsx   # Счётчик количества (+/–)
+│   │   │
+│   │   ├── cart/
+│   │   │   ├── CartItem.tsx           # Строка товара в корзине
+│   │   │   └── CartSummary.tsx        # Итоговый блок с ценой и кнопкой оформить
+│   │   │
+│   │   ├── checkout/
+│   │   │   ├── DeliveryForm.tsx       # Форма доставки
+│   │   │   └── PickupForm.tsx         # Форма самовывоза
+│   │   │
+│   │   └── admin/
+│   │       ├── OrderCard.tsx          # Карточка заказа в панели администратора
+│   │       ├── ProductForm.tsx        # Форма добавления/редактирования товара
+│   │       ├── StatsChart.tsx         # Графики статистики
+│   │       └── VenueForm.tsx          # Форма добавления/редактирования заведения
+│   │
+│   ├── lib/
+│   │   ├── prisma.ts                  # Синглтон Prisma Client
+│   │   ├── auth.ts                    # Конфигурация NextAuth (authOptions)
+│   │   ├── utils.ts                   # Общие утилиты (formatPrice, formatDate и др.)
+│   │   └── validations/
+│   │       ├── checkout.schema.ts     # Zod-схема формы оформления заказа
+│   │       ├── auth.schema.ts         # Zod-схемы форм входа/регистрации
+│   │       └── product.schema.ts      # Zod-схема формы товара (admin)
+│   │
+│   ├── store/
+│   │   ├── cartStore.ts               # Корзина: items, add/remove/update, persist
+│   │   ├── venueStore.ts              # Выбранное заведение и город, persist
+│   │   └── userStore.ts               # Данные текущего пользователя (UI-стейт)
+│   │
+│   ├── hooks/
+│   │   ├── useCurrentUser.ts          # Хук получения текущего пользователя из сессии
+│   │   ├── useCart.ts                 # Обёртка над cartStore с удобным API
+│   │   └── useVenue.ts                # Обёртка над venueStore
+│   │
+│   ├── types/
+│   │   ├── index.ts                   # Реэкспорт всех типов
+│   │   ├── next-auth.d.ts             # Расширение типов Session и JWT NextAuth
+│   │   └── api.ts                     # Типы запросов и ответов API
+│   │
+│   └── middleware.ts                  # Защита маршрутов /admin (проверка роли ADMIN)
+│
+├── .env                               # Переменные окружения (не коммитить в git!)
+├── .env.example                       # Шаблон переменных окружения
+├── .gitignore
+├── docker-compose.yml                 # Локальная PostgreSQL для разработки
+├── next.config.ts                     # Конфигурация Next.js
+├── tailwind.config.ts                 # Конфигурация Tailwind (тема, плагины)
+├── tsconfig.json                      # Конфигурация TypeScript
+├── postcss.config.mjs
+├── eslint.config.mjs
+├── package.json
+└── README.md
+```
+
+---
+
+## Переменные окружения (`.env.example`)
+
+```env
+# База данных
+DATABASE_URL="postgresql://user:password@localhost:5432/restaurant_db"
+
+# NextAuth.js
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="your-secret-key-min-32-chars"
+
+# Хранение изображений (Cloudinary, если используется)
+CLOUDINARY_CLOUD_NAME=""
+CLOUDINARY_API_KEY=""
+CLOUDINARY_API_SECRET=""
+
+# Окружение
+NODE_ENV="development"
+```
+
+---
+
+## Команды разработки
+
+```bash
+# Установка зависимостей
+npm install
+
+# Запуск локальной БД (PostgreSQL в Docker)
+docker-compose up -d
+
+# Создание и применение миграций
+npx prisma migrate dev
+
+# Заполнение БД тестовыми данными
+npx prisma db seed
+
+# Запуск dev-сервера
+npm run dev
+
+# Сборка для production
+npm run build
+
+# Запуск production-сервера
+npm start
+
+# Просмотр БД в браузере
+npx prisma studio
+
+# Генерация Prisma Client после изменений схемы
+npx prisma generate
+```
+
+---
+
+## Архитектура потока данных
+
+```
+Клиент (браузер)
+    │
+    ├── React Server Components (SSR/SSG)   ← прямое обращение к Prisma
+    │         └── страницы меню, товара, главная
+    │
+    └── Client Components + Zustand Store
+              │
+              ├── cartStore (localStorage)   ← корзина, без API
+              ├── venueStore (localStorage)  ← выбранное заведение
+              │
+              └── fetch() / SWR
+                        │
+                        └── Next.js API Route Handlers (/api/*)
+                                  │
+                                  └── Prisma ORM
+                                            │
+                                            └── PostgreSQL
+```
+
+---
+
+## Принципы именования
+
+- **Файлы компонентов**: `PascalCase.tsx` (`ProductCard.tsx`)
+- **Файлы утилит, хуков, сторов**: `camelCase.ts` (`cartStore.ts`, `useCart.ts`)
+- **API Route Handlers**: `route.ts` внутри директории с именем эндпоинта
+- **Страницы**: `page.tsx`, `layout.tsx` (конвенция Next.js App Router)
+- **Типы**: суффикс `Type` или `Props` для пропсов компонентов (`ProductCardProps`)
+- **Zod-схемы**: суффикс `Schema` (`checkoutSchema`, `productSchema`)
+
+---
+
+*Дата создания: 07.05.2026*  
+*Версия документа: 1.0*

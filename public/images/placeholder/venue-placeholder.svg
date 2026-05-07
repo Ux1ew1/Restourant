@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+  <rect width="1200" height="900" fill="#FDFAF4"/>
+  <rect x="60" y="60" width="1080" height="780" rx="48" fill="#FAF7F0" stroke="#E8DCC8" stroke-width="8"/>
+  <g fill="#5C4427" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial" text-anchor="middle">
+    <text x="600" y="430" font-size="56" font-weight="600">Venue</text>
+    <text x="600" y="500" font-size="32" opacity="0.85">placeholder</text>
+  </g>
+</svg>
+
