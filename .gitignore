@@ -15,3 +15,7 @@ pnpm-debug.log*
 
 *.tsbuildinfo
 
+# IDE / Cursor debug dumps
+debug-*.log
+.cursor/debug*.log
+
