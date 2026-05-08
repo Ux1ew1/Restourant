@@ -131,16 +131,27 @@ async function main() {
     skipDuplicates: true,
   });
 
-  const popular = await prisma.product.findFirst({
+  const popularCarbonara = await prisma.product.findFirst({
     where: { venueId: venue1.id, slug: "carbonara" },
     select: { id: true },
   });
+  const popularCaesar = await prisma.product.findFirst({
+    where: { venueId: venue1.id, slug: "caesar" },
+    select: { id: true },
+  });
 
-  if (popular) {
+  if (popularCarbonara) {
     await prisma.popularProduct.upsert({
-      where: { venueId_productId: { venueId: venue1.id, productId: popular.id } },
+      where: { venueId_productId: { venueId: venue1.id, productId: popularCarbonara.id } },
       update: { sortOrder: 1 },
-      create: { venueId: venue1.id, productId: popular.id, sortOrder: 1 },
+      create: { venueId: venue1.id, productId: popularCarbonara.id, sortOrder: 1 },
+    });
+  }
+  if (popularCaesar) {
+    await prisma.popularProduct.upsert({
+      where: { venueId_productId: { venueId: venue1.id, productId: popularCaesar.id } },
+      update: { sortOrder: 2 },
+      create: { venueId: venue1.id, productId: popularCaesar.id, sortOrder: 2 },
     });
   }
 
@@ -150,6 +161,12 @@ async function main() {
         venueId: venue1.id,
         title: "Скидка 10% на пасту по будням",
         content: "Действует с 12:00 до 16:00.",
+        isActive: true,
+      },
+      {
+        venueId: venue1.id,
+        title: "Бранч по выходным",
+        content: "Комбо-завтрак и кофе — только суббота и воскресенье.",
         isActive: true,
       },
       {
