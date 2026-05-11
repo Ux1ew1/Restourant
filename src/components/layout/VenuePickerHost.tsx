@@ -17,6 +17,7 @@ export function VenuePickerHost() {
   const setVenue = useVenueStore((s) => s.setVenue);
   const setVenuePickerStep = useVenueStore((s) => s.setVenuePickerStep);
   const openVenuePicker = useVenueStore((s) => s.openVenuePicker);
+  const closeVenuePicker = useVenueStore((s) => s.closeVenuePicker);
 
   useEffect(() => {
     const run = () => {
@@ -46,6 +47,7 @@ export function VenuePickerHost() {
       onSelectCity={handleCity}
       onSelectVenue={handleVenue}
       onBack={() => setVenuePickerStep("city")}
+      onClose={closeVenuePicker}
     />
   );
 }
