@@ -1,5 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
+
+import { updateSession } from "@/utils/supabase/middleware";
 
 /**
  * Middleware для защиты маршрутов административной панели.
@@ -7,14 +9,15 @@ import { getToken } from "next-auth/jwt";
  * Пропускает только пользователей с ролью ADMIN.
  * Неавторизованных или не-ADMIN перенаправляет на страницу входа.
  */
-export default async function middleware(req: Request & { nextUrl: URL }) {
+export default async function middleware(req: NextRequest) {
+  const supabaseResponse = await updateSession(req);
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const pathname = req.nextUrl.pathname;
 
-  if (!pathname.startsWith("/admin")) return NextResponse.next();
+  if (!pathname.startsWith("/admin")) return supabaseResponse;
 
   const role = token?.role;
-  if (role === "ADMIN") return NextResponse.next();
+  if (role === "ADMIN") return supabaseResponse;
 
   const url = new URL(req.nextUrl.toString());
   url.pathname = "/login";
@@ -23,6 +26,5 @@ export default async function middleware(req: Request & { nextUrl: URL }) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 };
-
