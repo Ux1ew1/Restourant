@@ -26,6 +26,10 @@ const venueFormSchema = z.object({
   phone: optionalPhoneSchema().optional(),
   logoUrl: imageUrlSchema("Некорректный URL").optional().or(z.literal("")),
   isActive: z.boolean().optional(),
+  storyEnabled: z.boolean().optional(),
+  storyTitle: z.string().trim().max(160).optional().or(z.literal("")),
+  storyText: z.string().trim().max(900).optional().or(z.literal("")),
+  bookingEnabled: z.boolean().optional(),
 });
 
 type VenueFormData = z.infer<typeof venueFormSchema>;
@@ -81,7 +85,15 @@ export function VenueForm({
 }: VenueFormProps) {
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<VenueFormData>({
     resolver: zodResolver(venueFormSchema),
-    defaultValues: { isActive: true, ...defaultValues },
+    defaultValues: {
+      isActive: true,
+      storyEnabled: false,
+      storyTitle: "Итальянские традиции в каждом блюде",
+      storyText:
+        "Мы вдохновлены уютными семейными ресторанами северной Италии и европейскими кулинарными традициями. Каждое блюдо — это сочетание качества, вкуса и любви к своему делу.",
+      bookingEnabled: false,
+      ...defaultValues,
+    },
   });
 
   const cityId = watch("cityId");
@@ -233,6 +245,30 @@ export function VenueForm({
       <label className="flex cursor-pointer items-center gap-2">
         <input {...register("isActive")} type="checkbox" className="h-4 w-4 rounded border-vanilla-300" />
         <span className="text-sm text-vanilla-700">Заведение активно (показывается клиентам)</span>
+      </label>
+
+      <div className="rounded-2xl border border-vanilla-200 bg-white p-4">
+        <label className="flex cursor-pointer items-center gap-2">
+          <input {...register("storyEnabled")} type="checkbox" className="h-4 w-4 rounded border-vanilla-300" />
+          <span className="text-sm font-medium text-vanilla-800">Показывать блок «История ресторана»</span>
+        </label>
+        <div className="mt-3 space-y-3">
+          <div>
+            <label className={lc}>Заголовок истории</label>
+            <input {...register("storyTitle")} className={fc} />
+            {errors.storyTitle && <p className="mt-1 text-xs text-red-500">{errors.storyTitle.message}</p>}
+          </div>
+          <div>
+            <label className={lc}>Текст истории</label>
+            <textarea {...register("storyText")} rows={4} className={fc} />
+            {errors.storyText && <p className="mt-1 text-xs text-red-500">{errors.storyText.message}</p>}
+          </div>
+        </div>
+      </div>
+
+      <label className="flex cursor-pointer items-center gap-2">
+        <input {...register("bookingEnabled")} type="checkbox" className="h-4 w-4 rounded border-vanilla-300" />
+        <span className="text-sm text-vanilla-700">Показывать блок бронирования (сейчас по умолчанию скрыт)</span>
       </label>
 
       <button type="submit" disabled={isSubmitting} className="w-full rounded-xl bg-vanilla-500 py-3 text-sm font-semibold text-white transition hover:bg-vanilla-400 disabled:opacity-60">

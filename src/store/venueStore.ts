@@ -15,6 +15,10 @@ export type Venue = {
   address: string;
   phone?: string | null;
   logoUrl?: string | null;
+  storyEnabled?: boolean;
+  storyTitle?: string | null;
+  storyText?: string | null;
+  bookingEnabled?: boolean;
 };
 
 export type VenuePickerStep = "city" | "venue";

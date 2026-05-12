@@ -39,6 +39,10 @@ export async function GET(request: Request): Promise<Response> {
         phone: true,
         logoUrl: true,
         isActive: true,
+        storyEnabled: true,
+        storyTitle: true,
+        storyText: true,
+        bookingEnabled: true,
       },
     });
 

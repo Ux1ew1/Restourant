@@ -51,10 +51,10 @@ export function ProductCard({
   }
 
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-vanilla-200 bg-white shadow-sm transition-all hover:shadow-md">
+    <article className="flex h-full flex-col overflow-hidden rounded-[24px] border border-[#c8a97e]/20 bg-white shadow-[0_14px_34px_rgba(26,26,26,0.08)] transition-all hover:-translate-y-1 hover:shadow-[0_24px_52px_rgba(26,26,26,0.14)]">
       <Link
         href={`/product/${product.id}`}
-        className="relative block aspect-4/3 bg-vanilla-100"
+        className="relative block aspect-[1.18] bg-vanilla-100"
         aria-label={`Открыть ${product.name}`}
       >
         <Image
@@ -78,24 +78,24 @@ export function ProductCard({
         </div>
       </Link>
 
-      <div className="flex flex-1 flex-col gap-2 p-4">
+      <div className="flex flex-1 flex-col gap-3 p-5">
         <div className="min-h-0 flex-1">
           <Link href={`/product/${product.id}`} className="group">
-            <h3 className="line-clamp-2 text-base font-semibold leading-snug text-vanilla-900 group-hover:text-vanilla-700">
+            <h3 className="line-clamp-2 text-base font-semibold leading-snug text-[#1a1a1a] group-hover:text-[#5a2e2e]">
               {product.name}
             </h3>
           </Link>
           {product.weight ? (
-            <p className="mt-1 text-xs text-vanilla-500">{product.weight}</p>
+            <p className="mt-1 text-sm leading-6 text-[#1a1a1a]/58">{product.weight}</p>
           ) : null}
         </div>
-        <div className="mt-auto flex items-center justify-between gap-2 border-t border-vanilla-100 pt-3">
-          <p className="text-sm font-semibold text-vanilla-800">
+        <div className="mt-auto flex items-center justify-between gap-2 border-t border-[#c8a97e]/20 pt-3">
+          <p className="text-lg font-semibold text-[#1a1a1a]">
             {formatPriceFromKopecks(product.price)}
           </p>
           <div className="flex h-10 w-32 shrink-0 justify-end">
             {quantityInCart > 0 ? (
-              <div className="inline-flex h-10 items-center rounded-xl border border-vanilla-200 bg-vanilla-50 p-1">
+              <div className="inline-flex h-10 items-center rounded-xl border border-[#c8a97e]/35 bg-[#f6f1ea] p-1">
                 <button
                   type="button"
                   onClick={() =>
@@ -103,26 +103,15 @@ export function ProductCard({
                       ? onRemoveFromCart(product)
                       : onDecreaseFromCart(product)
                   }
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-vanilla-800 transition hover:bg-vanilla-100"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-[#5a2e2e] transition hover:bg-[#c8a97e]/25"
                   aria-label={
                     quantityInCart <= 1 ? "Удалить из корзины" : "Уменьшить количество"
                   }
                 >
                   {quantityInCart <= 1 ? (
-                    <svg
-                      className="h-4 w-4"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                      aria-hidden
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M3 6h18M9 6V4h6v2m-7 0 1 14h6l1-14"
-                      />
-                    </svg>
+                    <span className="text-xl leading-none" aria-hidden>
+                      ×
+                    </span>
                   ) : (
                     <span className="text-lg leading-none">−</span>
                   )}
@@ -132,7 +121,7 @@ export function ProductCard({
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.18 }}
-                  className="min-w-8 px-1 text-center text-sm font-semibold tabular-nums text-vanilla-900"
+                  className="min-w-8 px-1 text-center text-sm font-semibold tabular-nums text-[#1a1a1a]"
                 >
                   {quantityInCart}
                 </motion.span>
@@ -140,7 +129,7 @@ export function ProductCard({
                   type="button"
                   disabled={disabled}
                   onClick={handleAddClick}
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-lg text-vanilla-800 transition enabled:hover:bg-vanilla-100 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-lg text-[#2f3a2f] transition enabled:hover:bg-[#c8a97e]/25 disabled:cursor-not-allowed disabled:opacity-40"
                   aria-label="Увеличить количество"
                 >
                   +
@@ -151,7 +140,7 @@ export function ProductCard({
                 type="button"
                 disabled={disabled}
                 onClick={handleAddClick}
-                className="h-10 cursor-pointer rounded-xl bg-vanilla-500 px-3 py-2 text-xs font-semibold text-white shadow-sm transition enabled:hover:bg-vanilla-400 disabled:cursor-not-allowed disabled:bg-vanilla-300 disabled:text-vanilla-100"
+                className="h-10 cursor-pointer rounded-xl bg-[#c8a97e] px-4 py-2 text-xs font-bold uppercase tracking-wide text-[#1a1a1a] shadow-sm transition enabled:hover:bg-[#e0bf8d] disabled:cursor-not-allowed disabled:bg-vanilla-300 disabled:text-vanilla-100"
               >
                 В корзину
               </button>

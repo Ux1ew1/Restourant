@@ -3,9 +3,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "prisma generate",
     "build": "next build",
     "postbuild": "next-sitemap",
     "start": "next start",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:seed": "prisma db seed",
+    "deploy:vercel-build": "prisma migrate deploy && npm run build",
     "lint": "next lint",
     "format": "prettier . --write"
   },

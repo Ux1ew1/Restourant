@@ -81,3 +81,17 @@ npm run format    # форматирование Prettier
 ## Оптимизация
 
 Публичные изображения используют `next/image` с `sizes` и ленивой загрузкой ниже первого экрана. Публичные API витрины отдают `Cache-Control: public, s-maxage=60, stale-while-revalidate=300`; пользовательские и административные мутации не кэшируются. Persist-сторы Zustand гидратируются вручную после mount, чтобы избежать SSR/CSR расхождений из-за `localStorage`.
+
+## Deployment
+
+Подробная инструкция вынесена в `docs/deployment.md`.
+
+Для Vercel используется `vercel.json` с build command `npm run deploy:vercel-build`: команда применяет production-миграции и запускает обычную сборку с генерацией Prisma Client, sitemap и robots.
+
+Для VPS/Docker добавлены `Dockerfile` и `docker-compose.prod.yml`. Production-запуск:
+
+```bash
+docker compose -f docker-compose.prod.yml up --build -d
+```
+
+Перед деплоем заполните `.env.production` по шаблону `.env.production.example`: production `DATABASE_URL`, `NEXTAUTH_URL`, `NEXT_PUBLIC_SITE_URL`, `AUTH_SECRET`/`NEXTAUTH_SECRET` и остальные нужные переменные.

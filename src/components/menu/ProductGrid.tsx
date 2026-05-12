@@ -39,14 +39,14 @@ export function ProductGrid({
 }: ProductGridProps) {
   if (!products.length) {
     return (
-      <p className="rounded-2xl border border-dashed border-vanilla-300 bg-vanilla-100/60 px-4 py-10 text-center text-sm text-vanilla-600">
+      <p className="rounded-[24px] border border-dashed border-[#c8a97e]/45 bg-white/55 px-4 py-12 text-center text-sm text-[#1a1a1a]/58">
         В этом разделе пока нет позиций
       </p>
     );
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
       {products.map((p) => (
         <ProductCard
           key={p.id}

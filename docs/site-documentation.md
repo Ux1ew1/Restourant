@@ -18,6 +18,7 @@
 | 11.05.2026 | 2.1 | Административная панель: заказы, меню, категории, заведения, новости, пользователи, статистика (Этап 10) |
 | 12.05.2026 | 2.2 | SEO: metadata, canonical, JSON-LD, Open Graph и next-sitemap (Этап 11) |
 | 12.05.2026 | 2.3 | Оптимизация: next/image, API cache headers, hydration fixes, README и финальные проверки (Этап 12) |
+| 12.05.2026 | 2.4 | Деплой: production env, Vercel, Docker/VPS, автоматические миграции и deployment-документация (Этап 13) |
 
 ---
 
@@ -636,4 +637,46 @@
 - Для точного Lighthouse-аудита нужен запущенный production-сервер и доступная БД с seed-данными.
 
 ## 14. Деплой и инфраструктура
-[Заполняется после Этапа 13]
+
+**Этап roadmap:** 13
+**Дата выполнения:** 12.05.2026
+
+### Что реализовано
+
+- Добавлен production-шаблон `.env.production.example` с `DATABASE_URL`, `NEXTAUTH_URL`, `NEXT_PUBLIC_SITE_URL`, `AUTH_SECRET`/`NEXTAUTH_SECRET`, Cloudinary-переменными и `NODE_ENV=production`.
+- Добавлены npm-скрипты `db:migrate:deploy`, `db:seed`, `deploy:vercel-build`; `prebuild` генерирует Prisma Client перед сборкой.
+- Добавлен `vercel.json`: Vercel использует build command `npm run deploy:vercel-build`, которая применяет Prisma migrations и запускает обычный `npm run build` с `postbuild` для sitemap/robots.
+- В `next.config.ts` включен `output: "standalone"` для Docker/VPS-сборки.
+- Добавлены `Dockerfile`, `.dockerignore` и `docker-compose.prod.yml`. Docker-сценарий запускает отдельный `migrate`-сервис с `prisma migrate deploy`, затем поднимает standalone Next.js app на порту `3000`.
+- Добавлен гайд `docs/deployment.md`: production PostgreSQL, Vercel, VPS/Docker, DNS/SSL и smoke-test после деплоя.
+- README дополнен кратким deployment-разделом.
+
+### Ключевые файлы
+
+| Файл | Назначение |
+|------|-----------|
+| `.env.production.example` | Шаблон production-секретов и публичных URL |
+| `vercel.json` | Build command для Vercel деплоя |
+| `Dockerfile` | Multi-stage сборка: deps, builder, migrator, runner |
+| `docker-compose.prod.yml` | VPS-цепочка `migrate` -> `app` |
+| `.dockerignore` | Исключения для Docker build context |
+| `docs/deployment.md` | Полная инструкция по production-развертыванию |
+| `package.json` | Production-скрипты и автомиграции при build |
+| `next.config.ts` | Standalone output для Docker |
+
+### Внешние шаги перед публикацией
+
+- Создать production PostgreSQL и вставить его URL в `DATABASE_URL`.
+- Сгенерировать секрет Auth.js и задать его в `AUTH_SECRET` и `NEXTAUTH_SECRET`.
+- После привязки домена обновить `NEXTAUTH_URL` и `NEXT_PUBLIC_SITE_URL`.
+- Для Vercel добавить DNS-записи в Project Settings -> Domains; SSL выдается автоматически.
+- Для VPS поставить Nginx/Caddy перед контейнером и включить Let's Encrypt.
+
+### Проверки
+
+- Локальная production-сборка должна проходить через `npm run build`.
+- После деплоя проверяются HTTPS, главная, `/menu`, авторизация, `/admin`, создание заказа, `/sitemap.xml`, `/robots.txt` и изображения.
+
+### Особенности и ограничения
+
+- Фактический деплой, выдача SSL-сертификата и проверка production-сайта требуют доступа к Vercel/VPS, production PostgreSQL и DNS.

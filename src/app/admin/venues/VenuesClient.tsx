@@ -19,6 +19,10 @@ interface VenueRow {
   phone: string | null;
   logoUrl: string | null;
   isActive: boolean;
+  storyEnabled: boolean;
+  storyTitle: string | null;
+  storyText: string | null;
+  bookingEnabled: boolean;
   city: City;
 }
 
@@ -167,6 +171,12 @@ export function AdminVenuesClient() {
                     phone: editVenue.phone ?? "",
                     logoUrl: editVenue.logoUrl ?? "",
                     isActive: editVenue.isActive,
+                    storyEnabled: editVenue.storyEnabled,
+                    storyTitle: editVenue.storyTitle ?? "Итальянские традиции в каждом блюде",
+                    storyText:
+                      editVenue.storyText ??
+                      "Мы вдохновлены уютными семейными ресторанами северной Италии и европейскими кулинарными традициями. Каждое блюдо — это сочетание качества, вкуса и любви к своему делу.",
+                    bookingEnabled: editVenue.bookingEnabled,
                   }
                 : undefined
             }
@@ -191,6 +201,16 @@ export function AdminVenuesClient() {
                   >
                     {v.isActive ? "Активно" : "Отключено"}
                   </span>
+                  {v.storyEnabled ? (
+                    <span className="rounded-full bg-vanilla-100 px-2 py-0.5 text-xs font-medium text-vanilla-700">
+                      История
+                    </span>
+                  ) : null}
+                  {v.bookingEnabled ? (
+                    <span className="rounded-full bg-vanilla-100 px-2 py-0.5 text-xs font-medium text-vanilla-700">
+                      Бронь
+                    </span>
+                  ) : null}
                 </div>
                 <p className="text-sm text-vanilla-600">
                   {v.city.name} · {v.address}

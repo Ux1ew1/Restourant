@@ -24,6 +24,10 @@ const venueSchema = z.object({
   phone: optionalPhoneSchema().optional(),
   logoUrl: imageUrlSchema("Некорректный URL").optional().or(z.literal("")),
   isActive: z.boolean().optional(),
+  storyEnabled: z.boolean().optional(),
+  storyTitle: z.string().trim().max(160).optional().or(z.literal("")),
+  storyText: z.string().trim().max(900).optional().or(z.literal("")),
+  bookingEnabled: z.boolean().optional(),
 });
 
 export async function GET(): Promise<Response> {
@@ -34,6 +38,7 @@ export async function GET(): Promise<Response> {
     select: {
       id: true, name: true, slug: true, address: true,
       phone: true, logoUrl: true, isActive: true,
+      storyEnabled: true, storyTitle: true, storyText: true, bookingEnabled: true,
       city: { select: { id: true, name: true, slug: true } },
     },
   });
@@ -54,6 +59,10 @@ export async function POST(request: Request): Promise<Response> {
       data: {
         cityId: d.cityId, name: d.name, slug: d.slug, address: d.address,
         phone: d.phone || null, logoUrl: d.logoUrl || null, isActive: d.isActive ?? true,
+        storyEnabled: d.storyEnabled ?? false,
+        storyTitle: d.storyTitle || null,
+        storyText: d.storyText || null,
+        bookingEnabled: d.bookingEnabled ?? false,
       },
       select: { id: true, name: true, slug: true },
     });
@@ -123,6 +132,10 @@ export async function PATCH(request: Request): Promise<Response> {
         phone: d.phone || null,
         logoUrl: d.logoUrl || null,
         isActive: d.isActive ?? true,
+        storyEnabled: d.storyEnabled ?? false,
+        storyTitle: d.storyTitle || null,
+        storyText: d.storyText || null,
+        bookingEnabled: d.bookingEnabled ?? false,
       },
       select: { id: true, name: true, slug: true, logoUrl: true, isActive: true },
     });

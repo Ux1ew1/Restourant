@@ -47,17 +47,17 @@ export function CategorySidebar({
 
   return (
     <nav aria-label="Категории меню" className="w-full">
-      <p className="mb-2 hidden text-xs font-semibold uppercase tracking-wider text-vanilla-500 lg:block">
+      <p className="mb-3 hidden text-xs font-bold uppercase tracking-[0.22em] text-[#c8a97e] lg:block">
         Разделы
       </p>
 
-      <div className="-mx-1 flex gap-1 overflow-x-auto pb-1 lg:mx-0 lg:flex-col lg:overflow-visible lg:pb-0">
+      <div className="-mx-1 flex gap-2 overflow-x-auto pb-1 lg:mx-0 lg:flex-col lg:overflow-visible lg:pb-0">
         <Link
           href={hrefFor(null)}
-          className={`shrink-0 rounded-full px-3 py-2 text-sm font-medium transition-colors lg:rounded-xl lg:px-3 ${
+          className={`shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold transition-all lg:rounded-xl lg:px-4 ${
             activeSlug === null
-              ? "bg-vanilla-800 text-vanilla-50"
-              : "bg-vanilla-100 text-vanilla-800 hover:bg-vanilla-200"
+              ? "bg-[#c8a97e] text-[#1a1a1a] shadow-[0_10px_22px_rgba(200,169,126,0.2)]"
+              : "bg-white/8 text-[#f6f1ea]/78 hover:bg-white/14 hover:text-[#f6f1ea]"
           }`}
         >
           Все разделы
@@ -69,10 +69,10 @@ export function CategorySidebar({
               key={c.id}
               href={hrefFor(c.slug)}
               scroll={false}
-              className={`shrink-0 rounded-full px-3 py-2 text-sm font-medium transition-colors lg:rounded-xl lg:px-3 ${
+              className={`shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold transition-all lg:rounded-xl lg:px-4 ${
                 active
-                  ? "bg-vanilla-800 text-vanilla-50"
-                  : "bg-vanilla-100 text-vanilla-800 hover:bg-vanilla-200"
+                  ? "bg-[#c8a97e] text-[#1a1a1a] shadow-[0_10px_22px_rgba(200,169,126,0.2)]"
+                  : "bg-white/8 text-[#f6f1ea]/78 hover:bg-white/14 hover:text-[#f6f1ea]"
               }`}
             >
               {c.name}

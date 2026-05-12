@@ -1,0 +1,5 @@
+ALTER TABLE "Venue"
+ADD COLUMN "storyEnabled" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "storyTitle" TEXT,
+ADD COLUMN "storyText" TEXT,
+ADD COLUMN "bookingEnabled" BOOLEAN NOT NULL DEFAULT false;

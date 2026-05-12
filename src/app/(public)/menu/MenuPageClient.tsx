@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { CategorySidebar } from "@/components/menu/CategorySidebar";
@@ -155,34 +156,42 @@ export function MenuPageClient() {
     return categories.find((c) => c.slug === activeSlug)?.name ?? null;
   }, [activeSlug, categories]);
 
+  const visibleCategoryCount = categories.length;
+  const visibleProductCount = filteredProducts.length;
+
   if (!venueId) {
     return (
-      <div className="rounded-2xl border border-vanilla-200 bg-vanilla-100/60 px-6 py-12 text-center">
-        <h1 className="font-serif text-2xl font-semibold text-vanilla-900">Меню</h1>
-        <p className="mt-3 text-sm text-vanilla-600">
-          Чтобы увидеть блюда и цены, выберите заведение.
-        </p>
-        <button
-          type="button"
-          onClick={() => openVenuePicker(selectedCity ? "venue" : "city")}
-          className="mt-6 cursor-pointer rounded-xl bg-vanilla-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-vanilla-400"
-        >
-          Выбрать заведение
-        </button>
+      <div className="bg-[#f6f1ea] px-4 py-10 sm:px-6">
+        <div className="mx-auto max-w-5xl overflow-hidden rounded-[28px] bg-[#2f3a2f] px-6 py-14 text-center text-[#f6f1ea] shadow-[0_22px_55px_rgba(26,26,26,0.16)]">
+          <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#c8a97e]">Меню</p>
+          <h1 className="mt-3 font-serif text-4xl font-semibold sm:text-5xl">Выберите заведение</h1>
+          <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-[#f6f1ea]/72">
+            Чтобы увидеть блюда, цены и популярные позиции, выберите ресторан в вашем городе.
+          </p>
+          <button
+            type="button"
+            onClick={() => openVenuePicker(selectedCity ? "venue" : "city")}
+            className="mt-7 cursor-pointer rounded-xl bg-[#c8a97e] px-6 py-3 text-sm font-bold uppercase tracking-wide text-[#1a1a1a] transition hover:bg-[#e0bf8d]"
+          >
+            Выбрать заведение
+          </button>
+        </div>
       </div>
     );
   }
 
   if (loading && !products.length) {
     return (
-      <div className="animate-pulse space-y-8" aria-busy="true" aria-label="Загрузка меню">
-        <div className="h-9 w-40 rounded-lg bg-vanilla-200" />
-        <div className="flex flex-col gap-6 lg:flex-row">
-          <div className="h-32 w-full rounded-2xl bg-vanilla-200 lg:h-64 lg:w-52" />
-          <div className="grid flex-1 gap-4 sm:grid-cols-2">
-            {[1, 2, 3, 4].map((k) => (
-              <div key={k} className="h-64 rounded-2xl bg-vanilla-200" />
-            ))}
+      <div className="bg-[#f6f1ea] px-4 py-10 sm:px-6" aria-busy="true" aria-label="Загрузка меню">
+        <div className="mx-auto max-w-7xl animate-pulse space-y-8">
+          <div className="h-64 rounded-[28px] bg-vanilla-200" />
+          <div className="flex flex-col gap-6 lg:flex-row">
+            <div className="h-32 w-full rounded-[24px] bg-vanilla-200 lg:h-80 lg:w-64" />
+            <div className="grid flex-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              {[1, 2, 3, 4, 5, 6].map((k) => (
+                <div key={k} className="h-80 rounded-[24px] bg-vanilla-200" />
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -191,37 +200,79 @@ export function MenuPageClient() {
 
   if (error) {
     return (
-      <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-8 text-center text-sm text-red-900">
-        {error}
+      <div className="bg-[#f6f1ea] px-4 py-10 sm:px-6">
+        <div className="mx-auto max-w-4xl rounded-[24px] border border-red-200 bg-red-50 px-6 py-8 text-center text-sm text-red-900">
+          {error}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      <header>
-        <h1 className="font-serif text-3xl font-semibold text-vanilla-900">Меню</h1>
-        {selectedVenue ? (
-          <p className="mt-1 text-sm text-vanilla-600">{selectedVenue.name}</p>
-        ) : null}
-      </header>
+    <div className="bg-[#f6f1ea] text-[#1a1a1a]">
+      <section className="relative overflow-hidden bg-[#1a1a1a] text-[#f6f1ea]">
+        <Image
+          src="/images/hero/italian-restaurant-hero.png"
+          alt=""
+          fill
+          priority
+          className="object-cover opacity-38"
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(26,26,26,0.95)_0%,rgba(47,58,47,0.82)_52%,rgba(26,26,26,0.35)_100%)]" />
+        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
+          <p className="text-xs font-bold uppercase tracking-[0.26em] text-[#c8a97e]">
+            {selectedVenue?.name || "ЮрЛа"}
+          </p>
+          <h1 className="mt-4 max-w-3xl font-serif text-5xl font-semibold leading-[0.98] sm:text-7xl">
+            Меню с итальянским характером
+          </h1>
+          <p className="mt-5 max-w-2xl text-base leading-7 text-[#f6f1ea]/76">
+            Паста, горячие блюда, закуски и десерты с акцентом на свежие продукты и спокойную европейскую подачу.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3 text-sm">
+            <span className="rounded-full border border-[#c8a97e]/35 bg-white/8 px-4 py-2 text-[#f6f1ea]/82">
+              {visibleCategoryCount} разделов
+            </span>
+            <span className="rounded-full border border-[#c8a97e]/35 bg-white/8 px-4 py-2 text-[#f6f1ea]/82">
+              {products.length} позиций
+            </span>
+            {selectedVenue?.address ? (
+              <span className="rounded-full border border-[#c8a97e]/35 bg-white/8 px-4 py-2 text-[#f6f1ea]/82">
+                {selectedVenue.address}
+              </span>
+            ) : null}
+          </div>
+        </div>
+      </section>
 
-      <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
-        <aside className="lg:sticky lg:top-24 lg:w-56 lg:shrink-0">
-          <div className="rounded-2xl border border-vanilla-200 bg-vanilla-100/50 p-3 lg:p-4">
+      <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-12 sm:px-6 lg:flex-row lg:items-start">
+        <aside className="lg:sticky lg:top-24 lg:w-64 lg:shrink-0">
+          <div className="rounded-[24px] border border-[#c8a97e]/25 bg-[#2f3a2f] p-3 shadow-[0_18px_42px_rgba(26,26,26,0.12)] lg:p-5">
             <CategorySidebar categories={categories} activeSlug={activeSlug} />
           </div>
         </aside>
 
-        <div className="min-w-0 flex-1 space-y-10">
+        <div className="min-w-0 flex-1 space-y-12">
+          <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[#c8a97e]/25 pb-5">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#c8a97e]">
+                {activeSlug ? "Выбранный раздел" : "Все разделы"}
+              </p>
+              <h2 className="mt-2 font-serif text-4xl font-semibold leading-tight text-[#1a1a1a] sm:text-5xl">
+                {activeCategoryName ?? "Полное меню"}
+              </h2>
+            </div>
+            <p className="text-sm text-[#1a1a1a]/58">
+              {visibleProductCount} {visibleProductCount === 1 ? "позиция" : "позиций"}
+            </p>
+          </div>
+
           {activeSlug ? (
             <section aria-labelledby="menu-section-title">
-              <h2
-                id="menu-section-title"
-                className="mb-4 font-serif text-xl font-semibold text-vanilla-900"
-              >
+              <h3 id="menu-section-title" className="sr-only">
                 {activeCategoryName ?? "Раздел"}
-              </h2>
+              </h3>
               <ProductGrid
                 products={filteredProducts}
                 onAddToCart={handleAdd}
@@ -242,7 +293,7 @@ export function MenuPageClient() {
                 >
                   <h2
                     id={`heading-${cat.id}`}
-                    className="mb-4 font-serif text-xl font-semibold text-vanilla-900"
+                    className="mb-5 font-serif text-3xl font-semibold text-[#2f3a2f]"
                   >
                     {cat.name}
                   </h2>

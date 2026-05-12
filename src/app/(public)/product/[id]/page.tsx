@@ -67,28 +67,28 @@ export default async function ProductPage({ params }: PageProps) {
   };
 
   return (
-    <div>
+    <div className="bg-[#f6f1ea] px-4 py-8 text-[#1a1a1a] sm:px-6 lg:py-10">
       <JsonLd data={productJsonLd} />
       <nav
-        className="mb-6 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-vanilla-600"
+        className="mx-auto mb-6 flex max-w-7xl flex-wrap items-center gap-x-2 gap-y-1 text-sm text-[#1a1a1a]/55"
         aria-label="Хлебные крошки"
       >
-        <Link href="/" className="transition hover:text-vanilla-900 hover:underline">
+        <Link href="/" className="transition hover:text-[#5a2e2e] hover:underline">
           Главная
         </Link>
         <span aria-hidden>/</span>
-        <Link href="/menu" className="transition hover:text-vanilla-900 hover:underline">
+        <Link href="/menu" className="transition hover:text-[#5a2e2e] hover:underline">
           Меню
         </Link>
         <span aria-hidden>/</span>
         <Link
           href={`/menu?category=${encodeURIComponent(product.category.slug)}`}
-          className="transition hover:text-vanilla-900 hover:underline"
+          className="transition hover:text-[#5a2e2e] hover:underline"
         >
           {product.category.name}
         </Link>
         <span aria-hidden>/</span>
-        <span className="font-medium text-vanilla-900">{product.name}</span>
+        <span className="font-medium text-[#1a1a1a]">{product.name}</span>
       </nav>
 
       <ProductPageClient product={product} />
