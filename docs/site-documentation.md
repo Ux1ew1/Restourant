@@ -16,6 +16,8 @@
 | 08.05.2026 | 1.9 | Страница корзины: список позиций, итог, заглушка `/checkout` |
 | 11.05.2026 | 2.0 | Оформление заказа: формы доставки/самовывоза, API заказов, страница подтверждения (Этап 9) |
 | 11.05.2026 | 2.1 | Административная панель: заказы, меню, категории, заведения, новости, пользователи, статистика (Этап 10) |
+| 12.05.2026 | 2.2 | SEO: metadata, canonical, JSON-LD, Open Graph и next-sitemap (Этап 11) |
+| 12.05.2026 | 2.3 | Оптимизация: next/image, API cache headers, hydration fixes, README и финальные проверки (Этап 12) |
 
 ---
 
@@ -556,8 +558,82 @@
 - Новых пакетов не добавлялось (используются react-hook-form, zod — уже установлены).
 
 ## 12. SEO
-[Заполняется после Этапа 11]
 
-## 13. Деплой и инфраструктура
+**Этап roadmap:** 11  
+**Дата выполнения:** 12.05.2026
+
+### Что реализовано
+
+- Добавлен общий SEO-модуль `src/lib/seo.ts`: базовый URL сайта, canonical URL, Open Graph/Twitter metadata, fallback OG-изображение и JSON-LD helper-данные.
+- На публичных страницах добавлен `generateMetadata`: главная, меню, карточка товара, корзина, оформление заказа и страница заказа.
+- Для главной и меню мета-описания строятся с учётом активного заведения из БД: название, город, адрес и контекст доставки/самовывоза.
+- Добавлена JSON-LD разметка: `Organization` и `Restaurant` на главной, `Menu` на странице меню, `Product` на странице товара.
+- Добавлен canonical через `alternates.canonical`; `/menu?category=...` канонизируется на `/menu`, пользовательские страницы корзины/checkout/order помечены `noindex`.
+- Установлен и настроен `next-sitemap`: после `next build` запускается `postbuild`, генерируются `sitemap.xml` и `robots.txt`; `/admin`, `/api` и `/order` исключены из индексации.
+- Добавлено fallback Open Graph изображение `public/og-image.svg`.
+
+### Ключевые файлы
+
+| Файл | Назначение |
+|------|-----------|
+| `src/lib/seo.ts` | Единая сборка metadata, canonical, URL и JSON-LD данных |
+| `src/components/seo/JsonLd.tsx` | Безопасный вывод `<script type="application/ld+json">` |
+| `src/app/layout.tsx` | Базовые metadata, `metadataBase`, Open Graph и Twitter defaults |
+| `src/app/(public)/page.tsx` | SEO главной + `Organization`/`Restaurant` JSON-LD |
+| `src/app/(public)/menu/page.tsx` | SEO меню + `Menu` JSON-LD |
+| `src/app/(public)/product/[id]/page.tsx` | SEO карточки товара + `Product` JSON-LD |
+| `next-sitemap.config.js` | Конфигурация sitemap и robots |
+| `public/og-image.svg` | Fallback изображение для Open Graph |
+
+### Особенности и ограничения
+
+- Серверные метаданные не видят выбор заведения из `localStorage`, поэтому для SEO используется первое активное заведение из базы данных.
+- `NEXT_PUBLIC_SITE_URL` добавлен в `.env.example`; в production его нужно установить в домен сайта, иначе sitemap и absolute OG URL возьмут `NEXTAUTH_URL` или `http://localhost:3000`.
+- Страницы корзины, checkout и заказа остаются публично доступными, но закрыты от индексации через `robots: noindex`.
+
+### Зависимости
+
+- Добавлен `next-sitemap` в `devDependencies`.
+
+## 13. Оптимизация и тестирование
+
+**Этап roadmap:** 12  
+**Дата выполнения:** 12.05.2026
+
+### Что реализовано
+
+- Все найденные изображения в `src` переведены на `next/image`; в админском списке новостных баннеров заменен последний сырой `<img>`.
+- Для публичных API витрины добавлен общий helper `src/lib/http-cache.ts` и заголовок `Cache-Control: public, s-maxage=60, stale-while-revalidate=300`.
+- Для публичных route handlers добавлен `revalidate = 60`: города, заведения, категории, товары, карточка товара, популярные позиции и новости.
+- Клиентские запросы главной страницы и меню больше не используют принудительный `cache: "no-store"`, чтобы не обходить кэширование публичных GET.
+- Persist-сторы `venueStore` и `cartStore` переведены на `skipHydration: true`; ручная гидратация выполняется в `AppProviders` после mount. Это снижает риск React hydration mismatch из-за `localStorage`.
+- README расширен инструкциями по локальному запуску, переменным окружения, production-сборке, sitemap и деплою.
+
+### Ключевые файлы
+
+| Файл | Назначение |
+|------|-----------|
+| `src/lib/http-cache.ts` | Единая настройка cache headers публичных API |
+| `src/app/api/*/route.ts` | Revalidate и `Cache-Control` для публичных GET |
+| `src/app/providers.tsx` | Ручная гидратация Zustand persist-сторов после mount |
+| `src/store/venueStore.ts` | `skipHydration` для выбранного города/заведения |
+| `src/store/cartStore.ts` | `skipHydration` для корзины |
+| `src/app/admin/news/NewsClient.tsx` | Превью баннера через `next/image` |
+| `README.md` | Инструкции запуска, сборки и деплоя |
+
+### Проверки
+
+- Проверка исходников: в `src` не осталось `<img>` и клиентских `cache: "no-store"` для витринных GET.
+- `npm.cmd run build` успешно проходит production-сборку, type-check и `next-sitemap`; сгенерированы `sitemap.xml` и `sitemap-0.xml`.
+- Проверен cache header на `/api/cities`: `public, s-maxage=60, stale-while-revalidate=300`.
+- Проведен базовый API smoke/load test по 20 последовательных запросов на публичные endpoints: `/api/cities`, `/api/venues`, `/api/categories`, `/api/products`, `/api/news`, `/api/products/popular`; все запросы вернули 200 и cache header.
+- Lighthouse и мобильная визуальная проверка оставлены в статусе `[~]`: локальный production-сервер отвечает 200, но browser runtime в текущем окружении не смог подготовить runtime-файлы. Целевые пороги остаются Performance >= 90, Accessibility >= 90, SEO >= 95.
+
+### Особенности и ограничения
+
+- Кэширование включено только для публичных справочных и витринных GET. Заказы, авторизация и admin API остаются динамическими.
+- Значения `s-maxage=60` и `stale-while-revalidate=300` выбраны как безопасный баланс для меню ресторана: изменения из админки могут появляться с небольшой задержкой.
+- Для точного Lighthouse-аудита нужен запущенный production-сервер и доступная БД с seed-данными.
+
+## 14. Деплой и инфраструктура
 [Заполняется после Этапа 13]
-
