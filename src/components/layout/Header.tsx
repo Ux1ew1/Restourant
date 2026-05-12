@@ -43,7 +43,7 @@ export function Header() {
           <button
             type="button"
             onClick={() => openVenuePicker(selectedCity ? "venue" : "city")}
-            className="min-w-0 rounded-xl px-1 text-left transition hover:bg-vanilla-100/80"
+            className="min-w-0 cursor-pointer rounded-xl px-1 text-left transition hover:bg-vanilla-100/80"
           >
             <div className="truncate text-sm font-semibold text-vanilla-900">{venueTitle}</div>
             <div className="text-xs text-vanilla-500">Сменить заведение</div>

@@ -4,12 +4,23 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
+import { buildMetadata } from "@/lib/seo";
 import { formatPriceFromKopecks } from "@/lib/utils";
 
-export const metadata: Metadata = {
-  title: "Заказ оформлен",
-  description: "Детали вашего заказа",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+
+  return buildMetadata({
+    title: "Заказ оформлен",
+    description: "Детали и статус вашего заказа.",
+    path: `/order/${id}`,
+    noIndex: true,
+  });
+}
 
 /** Тип строки заказа для отображения */
 interface OrderItemRow {

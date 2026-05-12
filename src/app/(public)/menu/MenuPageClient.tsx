@@ -17,7 +17,7 @@ type ProductsResponse = { ok: true; products: MenuProduct[] } | { ok: false };
  */
 export function MenuPageClient() {
   const { selectedVenue, selectedCity, openVenuePicker } = useVenue();
-  const { addItem } = useCart();
+  const { items, addItem, removeItem, updateQuantity } = useCart();
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -59,11 +59,9 @@ export function MenuPageClient() {
         const [catRes, prodRes] = await Promise.all([
           fetch(`/api/categories?venueId=${encodeURIComponent(venueId)}`, {
             signal: controller.signal,
-            cache: "no-store",
           }),
           fetch(`/api/products?venueId=${encodeURIComponent(venueId)}`, {
             signal: controller.signal,
-            cache: "no-store",
           }),
         ]);
 
@@ -112,6 +110,41 @@ export function MenuPageClient() {
     [addItem, selectedVenue],
   );
 
+  const getCartLineForProduct = useCallback(
+    (product: MenuProduct) =>
+      items.find(
+        (it) => it.product.id === product.id && (it.wishes ?? "").trim() === "",
+      ) ?? null,
+    [items],
+  );
+
+  const getQuantityInCart = useCallback(
+    (product: MenuProduct) => getCartLineForProduct(product)?.quantity ?? 0,
+    [getCartLineForProduct],
+  );
+
+  const handleDecrease = useCallback(
+    (product: MenuProduct) => {
+      const line = getCartLineForProduct(product);
+      if (!line) return;
+      if (line.quantity <= 1) {
+        removeItem(line.cartItemId);
+        return;
+      }
+      updateQuantity(line.cartItemId, line.quantity - 1);
+    },
+    [getCartLineForProduct, removeItem, updateQuantity],
+  );
+
+  const handleRemove = useCallback(
+    (product: MenuProduct) => {
+      const line = getCartLineForProduct(product);
+      if (!line) return;
+      removeItem(line.cartItemId);
+    },
+    [getCartLineForProduct, removeItem],
+  );
+
   const filteredProducts = useMemo(() => {
     if (!activeSlug) return products;
     return products.filter((p) => p.category.slug === activeSlug);
@@ -132,7 +165,7 @@ export function MenuPageClient() {
         <button
           type="button"
           onClick={() => openVenuePicker(selectedCity ? "venue" : "city")}
-          className="mt-6 rounded-xl bg-vanilla-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-vanilla-400"
+          className="mt-6 cursor-pointer rounded-xl bg-vanilla-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-vanilla-400"
         >
           Выбрать заведение
         </button>
@@ -189,7 +222,13 @@ export function MenuPageClient() {
               >
                 {activeCategoryName ?? "Раздел"}
               </h2>
-              <ProductGrid products={filteredProducts} onAddToCart={handleAdd} />
+              <ProductGrid
+                products={filteredProducts}
+                onAddToCart={handleAdd}
+                onDecreaseFromCart={handleDecrease}
+                onRemoveFromCart={handleRemove}
+                getQuantityInCart={getQuantityInCart}
+              />
             </section>
           ) : (
             categories.map((cat) => {
@@ -207,7 +246,13 @@ export function MenuPageClient() {
                   >
                     {cat.name}
                   </h2>
-                  <ProductGrid products={items} onAddToCart={handleAdd} />
+                  <ProductGrid
+                    products={items}
+                    onAddToCart={handleAdd}
+                    onDecreaseFromCart={handleDecrease}
+                    onRemoveFromCart={handleRemove}
+                    getQuantityInCart={getQuantityInCart}
+                  />
                 </section>
               );
             })

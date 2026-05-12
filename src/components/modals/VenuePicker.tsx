@@ -202,14 +202,14 @@ export function VenuePicker({
                       <button
                         type="button"
                         onClick={onClose}
-                        className="rounded-md px-2 py-1 text-xs font-medium text-vanilla-500 transition hover:bg-vanilla-100 hover:text-vanilla-800 sm:hidden"
+                        className="cursor-pointer rounded-md px-2 py-1 text-xs font-medium text-vanilla-500 transition hover:bg-vanilla-100 hover:text-vanilla-800 sm:hidden"
                       >
                         Закрыть
                       </button>
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-1.5 px-3 py-3">
+                  <div className="flex flex-col gap-1.5 px-2 py-3">
                     {citiesLoading ? (
                       <div className="px-2 py-3 text-sm text-vanilla-500">Загрузка…</div>
                     ) : citiesError ? (
@@ -220,10 +220,10 @@ export function VenuePicker({
                           key={city.id}
                           type="button"
                           onClick={() => onSelectCity(city)}
-                          className="flex w-full items-center justify-between rounded-xl border border-vanilla-200 bg-white px-4 py-2.5 text-left text-sm shadow-sm transition hover:border-vanilla-300 hover:bg-vanilla-50"
+                          className="box-border flex min-h-[44px] w-full cursor-pointer items-center justify-between gap-2 rounded-xl border border-vanilla-200 bg-white px-4 py-2.5 text-left text-sm shadow-sm transition hover:border-vanilla-300 hover:bg-vanilla-100"
                         >
-                          <span className="font-medium text-vanilla-900">{city.name}</span>
-                          <span className="text-vanilla-400">→</span>
+                          <span className="min-w-0 flex-1 font-medium text-vanilla-900">{city.name}</span>
+                          <span className="shrink-0 text-vanilla-400">→</span>
                         </button>
                       ))
                     ) : (
@@ -245,7 +245,7 @@ export function VenuePicker({
                       type="button"
                       onClick={canGoBackToCity ? onBack : undefined}
                       disabled={!canGoBackToCity}
-                      className="mb-2 flex items-center gap-1 text-[11px] uppercase tracking-wider text-vanilla-500 transition hover:text-vanilla-800 disabled:cursor-not-allowed disabled:text-vanilla-300"
+                      className="mb-2 flex cursor-pointer items-center gap-1 text-[11px] uppercase tracking-wider text-vanilla-500 transition hover:text-vanilla-800 disabled:cursor-not-allowed disabled:text-vanilla-300"
                     >
                       <span>←</span>
                       <span>{selectedCity?.name ?? "Назад"}</span>
@@ -255,14 +255,14 @@ export function VenuePicker({
                       <button
                         type="button"
                         onClick={onClose}
-                        className="rounded-md px-2 py-1 text-xs font-medium text-vanilla-500 transition hover:bg-vanilla-100 hover:text-vanilla-800 sm:hidden"
+                        className="cursor-pointer rounded-md px-2 py-1 text-xs font-medium text-vanilla-500 transition hover:bg-vanilla-100 hover:text-vanilla-800 sm:hidden"
                       >
                         Закрыть
                       </button>
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-1.5 px-3 py-3">
+                  <div className="flex flex-col gap-1.5 px-2 py-3">
                     {venuesLoading ? (
                       <div className="px-2 py-3 text-sm text-vanilla-500">Загрузка…</div>
                     ) : venuesError ? (
@@ -273,7 +273,7 @@ export function VenuePicker({
                           key={venue.id}
                           type="button"
                           onClick={() => onSelectVenue(venue)}
-                          className="flex w-full items-center justify-between rounded-xl border border-vanilla-200 bg-white px-4 py-2.5 text-left shadow-sm transition hover:border-vanilla-300 hover:bg-vanilla-50"
+                          className="box-border flex min-h-[44px] w-full cursor-pointer items-center justify-between gap-2 rounded-xl border border-vanilla-200 bg-white px-4 py-2.5 text-left shadow-sm transition hover:border-vanilla-300 hover:bg-vanilla-100"
                         >
                           <div>
                             <div className="text-sm font-medium text-vanilla-900">{venue.name}</div>

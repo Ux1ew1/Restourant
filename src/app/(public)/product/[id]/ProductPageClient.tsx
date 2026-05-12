@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useState } from "react";
@@ -114,7 +115,7 @@ export function ProductPageClient({ product }: ProductPageClientProps) {
             <button
               type="button"
               onClick={() => openVenuePicker(selectedCity ? "venue" : "city")}
-              className="mt-3 block w-full rounded-xl bg-vanilla-800 px-4 py-2 text-center text-sm font-semibold text-vanilla-50 hover:bg-vanilla-700 sm:w-auto"
+              className="mt-3 block w-full cursor-pointer rounded-xl bg-vanilla-800 px-4 py-2 text-center text-sm font-semibold text-vanilla-50 hover:bg-vanilla-700 sm:w-auto"
             >
               Выбрать заведение
             </button>
@@ -151,14 +152,19 @@ export function ProductPageClient({ product }: ProductPageClientProps) {
         </section>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <button
+          <motion.button
             type="button"
             disabled={!canOrder}
             onClick={handleAdd}
-            className="rounded-xl bg-vanilla-500 px-6 py-3 text-sm font-semibold text-white shadow-sm transition enabled:hover:bg-vanilla-400 disabled:cursor-not-allowed disabled:bg-vanilla-300 disabled:text-vanilla-100"
+            whileTap={canOrder ? { scale: 0.97 } : undefined}
+            animate={addedFlash ? { scale: [1, 1.04, 1] } : { scale: 1 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className={`rounded-xl px-6 py-3 text-sm font-semibold text-white shadow-sm transition ${
+              addedFlash ? "bg-emerald-600 enabled:hover:bg-emerald-500" : "bg-vanilla-500 enabled:hover:bg-vanilla-400"
+            } disabled:cursor-not-allowed disabled:bg-vanilla-300 disabled:text-vanilla-100`}
           >
-            Добавить в корзину
-          </button>
+            {addedFlash ? "Добавлено" : "Добавить в корзину"}
+          </motion.button>
           <Link
             href={`/menu?category=${encodeURIComponent(product.category.slug)}`}
             className="text-center text-sm font-medium text-vanilla-600 underline-offset-4 hover:text-vanilla-800 hover:underline sm:text-left"

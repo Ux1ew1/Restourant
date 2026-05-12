@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { optionalPhoneSchema } from "@/lib/validations/phone";
 
 /**
  * Схема регистрации пользователя.
@@ -9,12 +10,7 @@ import { z } from "zod";
 export const registerSchema = z.object({
   name: z.string().trim().min(1, "Введите имя").max(100, "Слишком длинное имя").optional(),
   email: z.string().trim().toLowerCase().email("Некорректный email"),
-  phone: z
-    .string()
-    .trim()
-    .min(6, "Некорректный телефон")
-    .max(32, "Некорректный телефон")
-    .optional(),
+  phone: optionalPhoneSchema().optional(),
   password: z.string().min(8, "Минимум 8 символов").max(72, "Слишком длинный пароль"),
 });
 
