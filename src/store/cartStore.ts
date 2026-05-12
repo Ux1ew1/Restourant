@@ -147,6 +147,7 @@ export const useCartStore = create<CartStore>()(
     }),
     {
       name: "restaurant-cart",
+      skipHydration: true,
       partialize: (s) => ({ items: s.items, totalQuantity: s.totalQuantity }),
     },
   ),

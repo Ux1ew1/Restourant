@@ -29,11 +29,24 @@ export function AdminProductEditClient({ productId }: { productId: string }) {
   const selectedVenue = useVenueStore((s) => s.selectedVenue);
   const isNew = productId === "new";
 
+  /** Дожидаемся rehydrate из localStorage, иначе кратко показывается «нет заведения». */
+  const [storeHydrated, setStoreHydrated] = useState(() =>
+    typeof window !== "undefined" && useVenueStore.persist.hasHydrated(),
+  );
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [defaultValues, setDefaultValues] = useState<Partial<ProductFormData> | undefined>();
   const [isLoading, setIsLoading] = useState(!isNew);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (useVenueStore.persist.hasHydrated()) {
+      setStoreHydrated(true);
+      return;
+    }
+    return useVenueStore.persist.onFinishHydration(() => setStoreHydrated(true));
+  }, []);
 
   const loadData = useCallback(async () => {
     if (!selectedVenue) return;
@@ -86,7 +99,7 @@ export function AdminProductEditClient({ productId }: { productId: string }) {
         router.push("/admin/menu");
       } else {
         const msgs: Record<string, string> = {
-          SLUG_TAKEN: "Этот slug уже занят другим товаром",
+          SLUG_TAKEN: "Такой адрес в ссылке уже занят другим товаром",
           VALIDATION_ERROR: "Проверьте заполнение формы",
         };
         setError(msgs[json.error ?? ""] ?? "Ошибка сервера");
@@ -94,6 +107,14 @@ export function AdminProductEditClient({ productId }: { productId: string }) {
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  if (!storeHydrated) {
+    return (
+      <div className="rounded-2xl border border-dashed border-vanilla-300 py-16 text-center text-vanilla-500">
+        Загрузка…
+      </div>
+    );
   }
 
   if (!selectedVenue) {

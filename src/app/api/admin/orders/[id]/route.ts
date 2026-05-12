@@ -9,8 +9,7 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
 /** Допустимые статусы заказа и их переходы */
-export const ORDER_STATUSES = ["new", "accepted", "in_progress", "delivering", "done", "cancelled"] as const;
-export type OrderStatus = (typeof ORDER_STATUSES)[number];
+const ORDER_STATUSES = ["new", "accepted", "in_progress", "delivering", "done", "cancelled"] as const;
 
 const patchSchema = z.object({
   status: z.enum(ORDER_STATUSES),

@@ -19,7 +19,7 @@ const categorySchema = z.object({
   slug: z
     .string()
     .trim()
-    .min(1, "Введите slug")
+    .min(1, "Укажите адрес в ссылке")
     .regex(/^[a-z0-9-]+$/, "Только строчные латинские буквы, цифры и дефисы"),
   sortOrder: z.coerce.number().int().min(0).optional(),
 });

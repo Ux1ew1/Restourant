@@ -7,6 +7,7 @@
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { imageUrlSchema } from "@/lib/validations/image-url";
 import { z } from "zod";
 
 async function guard() {
@@ -16,7 +17,7 @@ async function guard() {
 
 const newsSchema = z.object({
   title: z.string().trim().min(1, "Введите заголовок").max(200),
-  imageUrl: z.string().trim().url("Некорректный URL").optional().or(z.literal("")),
+  imageUrl: imageUrlSchema("Некорректный URL").optional().or(z.literal("")),
   content: z.string().trim().max(2000).optional(),
   isActive: z.boolean().optional(),
   venueId: z.string().optional(),

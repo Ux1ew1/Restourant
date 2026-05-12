@@ -5,7 +5,7 @@ import { AdminProductEditClient } from "./ProductEditClient";
 export const metadata: Metadata = { title: "Редактирование товара" };
 
 /**
- * Страница добавления (id = "new") или редактирования товара.
+ * Страница редактирования товара по id. Добавление — отдельный маршрут `/admin/menu/new`.
  */
 export default async function AdminProductEditPage({
   params,

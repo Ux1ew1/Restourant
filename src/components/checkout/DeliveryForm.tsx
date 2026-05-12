@@ -4,7 +4,12 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { deliverySchema, type DeliveryFormData } from "@/lib/validations/checkout.schema";
+import {
+  deliverySchema,
+  type DeliveryFormData,
+  type DeliveryFormInput,
+} from "@/lib/validations/checkout.schema";
+import { PHONE_MASK_EXAMPLE } from "@/lib/validations/phone";
 import { formatPriceFromKopecks } from "@/lib/utils";
 
 /** Пропсы компонента DeliveryForm */
@@ -44,7 +49,7 @@ export function DeliveryForm({
     watch,
     setValue,
     formState: { errors },
-  } = useForm<DeliveryFormData>({
+  } = useForm<DeliveryFormInput, unknown, DeliveryFormData>({
     resolver: zodResolver(deliverySchema),
     defaultValues: {
       type: "delivery",
@@ -160,7 +165,7 @@ export function DeliveryForm({
         <input
           {...register("phone")}
           type="tel"
-          placeholder="+7 (900) 000-00-00"
+          placeholder={PHONE_MASK_EXAMPLE}
           className="w-full rounded-xl border border-vanilla-200 bg-vanilla-50 px-4 py-2.5 text-sm text-vanilla-900 placeholder:text-vanilla-400 focus:border-vanilla-500 focus:outline-none focus:ring-2 focus:ring-vanilla-500/20"
         />
         {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone.message}</p>}

@@ -63,6 +63,19 @@ async function main() {
     },
   });
 
+  const venue3 = await prisma.venue.upsert({
+    where: { cityId_slug: { cityId: city.id, slug: "lapsha" } },
+    update: {},
+    create: {
+      name: "Лапша",
+      slug: "lapsha",
+      cityId: city.id,
+      address: "ул. Пример, 25",
+      phone: "+7 (999) 222-22-22",
+      isActive: true,
+    },
+  });
+
   const adminEmail = "admin@example.com";
   const passwordHash = await bcrypt.hash("admin12345", 10);
 
@@ -111,6 +124,24 @@ async function main() {
       where: { venueId_slug: { venueId: venue2.id, slug: "sides" } },
       update: {},
       create: { venueId: venue2.id, name: "Гарниры", slug: "sides", sortOrder: 3 },
+    }),
+  ]);
+
+  const [catNoodles3, catSoups3, catStarters3] = await Promise.all([
+    prisma.category.upsert({
+      where: { venueId_slug: { venueId: venue3.id, slug: "noodles" } },
+      update: {},
+      create: { venueId: venue3.id, name: "Лапша", slug: "noodles", sortOrder: 0 },
+    }),
+    prisma.category.upsert({
+      where: { venueId_slug: { venueId: venue3.id, slug: "soups" } },
+      update: {},
+      create: { venueId: venue3.id, name: "Супы", slug: "soups", sortOrder: 1 },
+    }),
+    prisma.category.upsert({
+      where: { venueId_slug: { venueId: venue3.id, slug: "starters" } },
+      update: {},
+      create: { venueId: venue3.id, name: "Закуски", slug: "starters", sortOrder: 2 },
     }),
   ]);
 
@@ -280,6 +311,61 @@ async function main() {
         weight: "120 г",
         composition: "молоко, сливки, ваниль, шоколад",
         price: 26000,
+      },
+      {
+        venueId: venue3.id,
+        categoryId: catNoodles3.id,
+        name: "Рамен с курицей",
+        slug: "chicken-ramen",
+        description: "Пшеничная лапша в насыщенном бульоне с курицей, яйцом и нори.",
+        imageUrl: "/images/menu/chicken-ramen.png",
+        weight: "520 г",
+        composition: "лапша, курица, бульон, яйцо, нори, зелёный лук",
+        price: 56000,
+      },
+      {
+        venueId: venue3.id,
+        categoryId: catNoodles3.id,
+        name: "Удон с говядиной",
+        slug: "beef-udon",
+        description: "Обжаренный удон с говядиной, овощами и соусом терияки.",
+        imageUrl: "/images/menu/beef-udon.png",
+        weight: "430 г",
+        composition: "лапша удон, говядина, болгарский перец, лук, соус терияки",
+        price: 59000,
+      },
+      {
+        venueId: venue3.id,
+        categoryId: catNoodles3.id,
+        name: "Соба с креветками",
+        slug: "shrimp-soba",
+        description: "Гречневая лапша с креветками, брокколи и кунжутом.",
+        imageUrl: "/images/menu/shrimp-soba.png",
+        weight: "410 г",
+        composition: "лапша соба, креветки, брокколи, морковь, кунжут",
+        price: 62000,
+      },
+      {
+        venueId: venue3.id,
+        categoryId: catSoups3.id,
+        name: "Мисо-суп с тофу",
+        slug: "miso-tofu",
+        description: "Лёгкий мисо-бульон с тофу, вакаме и зелёным луком.",
+        imageUrl: "/images/menu/miso-tofu.png",
+        weight: "320 мл",
+        composition: "мисо-паста, тофу, вакаме, зелёный лук",
+        price: 29000,
+      },
+      {
+        venueId: venue3.id,
+        categoryId: catStarters3.id,
+        name: "Гёдза с курицей",
+        slug: "chicken-gyoza",
+        description: "Японские пельмени на пару и гриле с соусом понзу.",
+        imageUrl: "/images/menu/chicken-gyoza.png",
+        weight: "180 г",
+        composition: "тесто, курица, капуста, имбирь, соус понзу",
+        price: 36000,
       },
     ],
     skipDuplicates: true,

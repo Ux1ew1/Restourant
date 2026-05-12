@@ -1,4 +1,7 @@
 import { getPublicProductById } from "@/lib/public-product";
+import { jsonWithPublicCache } from "@/lib/http-cache";
+
+export const revalidate = 60;
 
 /**
  * @module /api/products/[id]
@@ -26,7 +29,7 @@ export async function GET(
       return Response.json({ ok: false, error: "NOT_FOUND" }, { status: 404 });
     }
 
-    return Response.json({ ok: true, product });
+    return jsonWithPublicCache({ ok: true, product });
   } catch (e) {
     console.error(e);
     return Response.json({ ok: false, error: "INTERNAL_ERROR" }, { status: 500 });

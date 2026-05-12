@@ -1,4 +1,7 @@
 import { prisma } from "@/lib/prisma";
+import { jsonWithPublicCache } from "@/lib/http-cache";
+
+export const revalidate = 60;
 
 /**
  * @module /api/cities
@@ -15,10 +18,9 @@ export async function GET(): Promise<Response> {
       select: { id: true, name: true, slug: true, isActive: true },
     });
 
-    return Response.json({ ok: true, cities });
+    return jsonWithPublicCache({ ok: true, cities });
   } catch (e) {
     console.error(e);
     return Response.json({ ok: false, error: "INTERNAL_ERROR" }, { status: 500 });
   }
 }
-

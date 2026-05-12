@@ -1,21 +1,11 @@
 import { z } from "zod";
-
-/**
- * Валидация российского номера телефона.
- * Принимает форматы +7..., 8..., 7... с разными разделителями.
- */
-const phoneSchema = z
-  .string()
-  .trim()
-  .min(10, "Введите номер телефона")
-  .max(20, "Некорректный номер телефона")
-  .regex(/^[\d\s\+\-\(\)]+$/, "Некорректный номер телефона");
+import { requiredPhoneSchema } from "@/lib/validations/phone";
 
 /**
  * Общие поля для обеих форм оформления заказа.
  */
 const baseFields = {
-  phone: phoneSchema,
+  phone: requiredPhoneSchema(),
   /** Способ оплаты */
   paymentMethod: z.enum(["card", "cash"], { message: "Выберите способ оплаты" }),
   /** Сдача с (в рублях). Заполняется только при оплате наличными */
@@ -81,6 +71,9 @@ export const deliverySchema = z
 /** Объединённая схема оформления заказа (discriminated union по полю `type`) */
 export const checkoutSchema = z.discriminatedUnion("type", [pickupSchema, deliverySchema]);
 
-export type PickupFormData = z.infer<typeof pickupSchema>;
-export type DeliveryFormData = z.infer<typeof deliverySchema>;
-export type CheckoutFormData = z.infer<typeof checkoutSchema>;
+export type PickupFormInput = z.input<typeof pickupSchema>;
+export type PickupFormData = z.output<typeof pickupSchema>;
+export type DeliveryFormInput = z.input<typeof deliverySchema>;
+export type DeliveryFormData = z.output<typeof deliverySchema>;
+export type CheckoutFormInput = z.input<typeof checkoutSchema>;
+export type CheckoutFormData = z.output<typeof checkoutSchema>;

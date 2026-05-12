@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   images: {
     // Разрешаем любые HTTPS-источники — необходимо для admin-панели,
     // где администраторы вставляют произвольные URL изображений товаров,

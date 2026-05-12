@@ -69,19 +69,22 @@ export function PopularProducts({ products, error, loading }: PopularProductsPro
 
   return (
     <section aria-label="Популярные позиции">
-      <div className="mb-4 flex items-end justify-between gap-4">
-        <h2 className="font-serif text-xl font-semibold text-vanilla-900 sm:text-2xl">
-          Популярное
-        </h2>
+      <div className="mb-7 flex items-end justify-between gap-4">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#c8a97e]">Популярное</p>
+          <h2 className="mt-2 font-serif text-4xl font-semibold leading-tight text-[#1a1a1a] sm:text-5xl">
+            Попробуйте наши блюда
+          </h2>
+        </div>
         <Link
           href="/menu"
-          className="text-sm font-medium text-vanilla-600 underline-offset-4 hover:text-vanilla-800 hover:underline"
+          className="hidden text-sm font-medium text-[#5a2e2e] underline-offset-4 hover:text-[#2f3a2f] hover:underline sm:inline"
         >
-          Всё меню
+          Смотреть всё меню
         </Link>
       </div>
 
-      <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-2 pt-1 [scrollbar-width:thin] sm:mx-0 sm:px-0">
+      <div className="-mx-4 flex gap-5 overflow-x-auto px-4 pb-4 pt-1 [scrollbar-width:thin] sm:mx-0 sm:px-0 lg:grid lg:grid-cols-4 lg:overflow-visible">
         {products.map((p, i) => (
           <motion.article
             key={p.id}
@@ -89,15 +92,16 @@ export function PopularProducts({ products, error, loading }: PopularProductsPro
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-40px" }}
             transition={{ duration: 0.35, delay: i * 0.04, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[min(220px,78vw)] shrink-0"
+            whileHover={{ y: -6 }}
+            className="w-[min(290px,82vw)] shrink-0 lg:w-auto"
           >
             <Link
               href={`/product/${p.id}`}
-              className={`group block overflow-hidden rounded-2xl border border-vanilla-200 bg-white shadow-sm transition-shadow hover:shadow-md ${
+              className={`group block overflow-hidden rounded-[24px] border border-[#c8a97e]/20 bg-white shadow-[0_14px_34px_rgba(26,26,26,0.08)] transition-shadow hover:shadow-[0_24px_52px_rgba(26,26,26,0.14)] ${
                 p.isStopList ? "opacity-90" : ""
               }`}
             >
-              <div className="relative aspect-4/3 bg-vanilla-100">
+              <div className="relative aspect-[1.25] bg-vanilla-100">
                 {p.imageUrl ? (
                   <Image
                     src={p.imageUrl}
@@ -117,16 +121,21 @@ export function PopularProducts({ products, error, loading }: PopularProductsPro
                   </span>
                 ) : null}
               </div>
-              <div className="space-y-1 px-3 py-3">
-                <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-vanilla-900">
+              <div className="space-y-3 px-5 py-5">
+                <h3 className="line-clamp-2 text-base font-semibold leading-snug text-[#1a1a1a]">
                   {p.name}
                 </h3>
                 {p.weight ? (
-                  <p className="text-xs text-vanilla-500">{p.weight}</p>
+                  <p className="text-sm leading-6 text-[#1a1a1a]/58">{p.weight}</p>
                 ) : null}
-                <p className="text-sm font-semibold text-vanilla-800">
-                  {formatPriceFromKopecks(p.price)}
-                </p>
+                <div className="flex items-center justify-between gap-3 pt-2">
+                  <p className="text-lg font-semibold text-[#1a1a1a]">
+                    {formatPriceFromKopecks(p.price)}
+                  </p>
+                  <span className="rounded-full border border-[#c8a97e]/55 px-3 py-1.5 text-xs font-semibold text-[#5a2e2e] transition group-hover:bg-[#c8a97e] group-hover:text-[#1a1a1a]">
+                    Заказать
+                  </span>
+                </div>
               </div>
             </Link>
           </motion.article>

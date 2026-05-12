@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
 
+import { buildMetadata } from "@/lib/seo";
+
 import { CartPageClient } from "./CartPageClient";
 
-export const metadata: Metadata = {
-  title: "Корзина",
-  description: "Позиции заказа, количество и сумма перед оформлением.",
-};
+export function generateMetadata(): Metadata {
+  return buildMetadata({
+    title: "Корзина",
+    description: "Проверьте позиции заказа, количество и сумму перед оформлением.",
+    path: "/cart",
+    noIndex: true,
+  });
+}
 
-/**
- * Страница корзины: список товаров и переход к оформлению заказа.
- */
 export default function CartPage() {
   return <CartPageClient />;
 }

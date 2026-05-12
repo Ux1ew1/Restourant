@@ -1,4 +1,8 @@
 import { prisma } from "@/lib/prisma";
+import { jsonWithPublicCache } from "@/lib/http-cache";
+
+export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 /**
  * @module /api/venues
@@ -35,13 +39,16 @@ export async function GET(request: Request): Promise<Response> {
         phone: true,
         logoUrl: true,
         isActive: true,
+        storyEnabled: true,
+        storyTitle: true,
+        storyText: true,
+        bookingEnabled: true,
       },
     });
 
-    return Response.json({ ok: true, venues });
+    return jsonWithPublicCache({ ok: true, venues });
   } catch (e) {
     console.error(e);
     return Response.json({ ok: false, error: "INTERNAL_ERROR" }, { status: 500 });
   }
 }
-

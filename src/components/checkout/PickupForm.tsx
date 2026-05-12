@@ -4,7 +4,12 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { pickupSchema, type PickupFormData } from "@/lib/validations/checkout.schema";
+import {
+  pickupSchema,
+  type PickupFormData,
+  type PickupFormInput,
+} from "@/lib/validations/checkout.schema";
+import { PHONE_MASK_EXAMPLE } from "@/lib/validations/phone";
 import { formatPriceFromKopecks } from "@/lib/utils";
 
 /** Пропсы компонента PickupForm */
@@ -47,7 +52,7 @@ export function PickupForm({
     watch,
     setValue,
     formState: { errors },
-  } = useForm<PickupFormData>({
+  } = useForm<PickupFormInput, unknown, PickupFormData>({
     resolver: zodResolver(pickupSchema),
     defaultValues: {
       type: "pickup",
@@ -84,7 +89,7 @@ export function PickupForm({
         <input
           {...register("phone")}
           type="tel"
-          placeholder="+7 (900) 000-00-00"
+          placeholder={PHONE_MASK_EXAMPLE}
           className="w-full rounded-xl border border-vanilla-200 bg-vanilla-50 px-4 py-2.5 text-sm text-vanilla-900 placeholder:text-vanilla-400 focus:border-vanilla-500 focus:outline-none focus:ring-2 focus:ring-vanilla-500/20"
         />
         {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone.message}</p>}

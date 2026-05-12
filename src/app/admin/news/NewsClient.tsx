@@ -1,7 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 
+import { uploadAdminImage } from "@/lib/admin-image-upload";
 import { useVenueStore } from "@/store/venueStore";
 
 interface NewsItem {
@@ -19,6 +21,8 @@ export function AdminNewsClient() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ title: "", imageUrl: "", content: "", isActive: true });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const fetchItems = useCallback(async () => {
     if (!selectedVenue) return;
@@ -40,8 +44,27 @@ export function AdminNewsClient() {
       body: JSON.stringify({ ...form, venueId: selectedVenue.id, imageUrl: form.imageUrl || undefined }),
     });
     const json = await res.json() as { ok: boolean };
-    if (json.ok) { await fetchItems(); setShowForm(false); setForm({ title: "", imageUrl: "", content: "", isActive: true }); }
+    if (json.ok) {
+      await fetchItems();
+      setShowForm(false);
+      setForm({ title: "", imageUrl: "", content: "", isActive: true });
+      setUploadError(null);
+    }
     setIsSubmitting(false);
+  }
+
+  async function uploadBannerImage(file: File | null) {
+    if (!file) return;
+    setIsUploadingImage(true);
+    setUploadError(null);
+    try {
+      const url = await uploadAdminImage(file, "banner");
+      setForm((f) => ({ ...f, imageUrl: url }));
+    } catch {
+      setUploadError("Не удалось загрузить баннер. Попробуйте другой файл.");
+    } finally {
+      setIsUploadingImage(false);
+    }
   }
 
   async function toggleActive(id: string, current: boolean) {
@@ -77,16 +100,30 @@ export function AdminNewsClient() {
           <h2 className="font-semibold text-vanilla-900">Новый баннер</h2>
           <input value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} placeholder="Заголовок *" className={fc} />
           <input value={form.imageUrl} onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))} placeholder="URL изображения" className={fc} />
+          <div>
+            <input
+              type="file"
+              accept="image/*"
+              disabled={isUploadingImage}
+              onChange={(e) => void uploadBannerImage(e.target.files?.[0] ?? null)}
+              className="block w-full cursor-pointer text-xs text-vanilla-600 file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-vanilla-100 file:px-3 file:py-2 file:text-xs file:font-medium file:text-vanilla-700 hover:file:bg-vanilla-200"
+            />
+            <p className="mt-1 text-xs text-vanilla-500">
+              Загрузка с ПК и автосжатие для баннера (до 1920x1080, WebP).
+            </p>
+            {isUploadingImage ? <p className="mt-1 text-xs text-vanilla-500">Загружаем...</p> : null}
+            {uploadError ? <p className="mt-1 text-xs text-red-500">{uploadError}</p> : null}
+          </div>
           <textarea value={form.content} onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))} placeholder="Текст (необязательно)" rows={3} className={`${fc} resize-none`} />
           <label className="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" checked={form.isActive} onChange={(e) => setForm((f) => ({ ...f, isActive: e.target.checked }))} className="h-4 w-4" />
             <span className="text-sm text-vanilla-700">Опубликован</span>
           </label>
           <div className="flex gap-3">
-            <button onClick={addItem} disabled={isSubmitting || !form.title.trim()} className="rounded-xl bg-vanilla-500 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">
+            <button onClick={addItem} disabled={isSubmitting || isUploadingImage || !form.title.trim()} className="rounded-xl bg-vanilla-500 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">
               {isSubmitting ? "Сохранение..." : "Создать"}
             </button>
-            <button onClick={() => setShowForm(false)} className="text-sm text-vanilla-500">Отмена</button>
+            <button onClick={() => { setShowForm(false); setUploadError(null); }} className="text-sm text-vanilla-500">Отмена</button>
           </div>
         </div>
       )}
@@ -97,7 +134,14 @@ export function AdminNewsClient() {
         {items.map((item) => (
           <div key={item.id} className="flex items-start gap-4 rounded-2xl border border-vanilla-200 bg-white p-4">
             {item.imageUrl && (
-              <img src={item.imageUrl} alt="" className="h-16 w-24 rounded-xl object-cover shrink-0" />
+              <Image
+                src={item.imageUrl}
+                alt=""
+                width={96}
+                height={64}
+                sizes="96px"
+                className="h-16 w-24 shrink-0 rounded-xl object-cover"
+              />
             )}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">

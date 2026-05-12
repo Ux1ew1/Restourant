@@ -47,24 +47,24 @@ export function QuantitySelector({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <div className="inline-flex items-center rounded-xl border border-vanilla-300 bg-white p-1">
+      <div className="inline-flex items-center rounded-xl border border-[#c8a97e]/35 bg-[#f6f1ea] p-1">
         <button
           type="button"
           onClick={dec}
           disabled={value <= min}
-          className="flex h-9 w-9 items-center justify-center rounded-lg text-lg font-medium text-vanilla-900 transition enabled:hover:bg-vanilla-100 disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex h-9 w-9 items-center justify-center rounded-lg text-lg font-medium text-[#5a2e2e] transition enabled:hover:bg-[#c8a97e]/25 disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="Уменьшить количество"
         >
           −
         </button>
-        <span className="min-w-[2.5rem] px-2 text-center text-sm font-semibold tabular-nums text-vanilla-900">
+        <span className="min-w-[2.5rem] px-2 text-center text-sm font-semibold tabular-nums text-[#1a1a1a]">
           {value}
         </span>
         <button
           type="button"
           onClick={inc}
           disabled={value >= max}
-          className="flex h-9 w-9 items-center justify-center rounded-lg text-lg font-medium text-vanilla-900 transition enabled:hover:bg-vanilla-100 disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex h-9 w-9 items-center justify-center rounded-lg text-lg font-medium text-[#2f3a2f] transition enabled:hover:bg-[#c8a97e]/25 disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="Увеличить количество"
         >
           +
@@ -74,7 +74,7 @@ export function QuantitySelector({
         <button
           type="button"
           onClick={onClear}
-          className="rounded-xl border border-vanilla-300 px-3 py-2 text-xs font-medium text-vanilla-700 transition hover:border-vanilla-500 hover:text-vanilla-900"
+          className="rounded-xl border border-[#c8a97e]/35 px-3 py-2 text-xs font-semibold text-[#5a2e2e] transition hover:border-[#c8a97e] hover:text-[#1a1a1a]"
         >
           Удалить
         </button>

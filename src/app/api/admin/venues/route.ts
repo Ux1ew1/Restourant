@@ -7,6 +7,8 @@
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { imageUrlSchema } from "@/lib/validations/image-url";
+import { optionalPhoneSchema } from "@/lib/validations/phone";
 import { z } from "zod";
 
 async function guard() {
@@ -19,9 +21,13 @@ const venueSchema = z.object({
   name: z.string().trim().min(1, "Введите название").max(200),
   slug: z.string().trim().min(1).regex(/^[a-z0-9-]+$/),
   address: z.string().trim().min(1, "Введите адрес").max(300),
-  phone: z.string().trim().max(30).optional(),
-  logoUrl: z.string().trim().url().optional().or(z.literal("")),
+  phone: optionalPhoneSchema().optional(),
+  logoUrl: imageUrlSchema("Некорректный URL").optional().or(z.literal("")),
   isActive: z.boolean().optional(),
+  storyEnabled: z.boolean().optional(),
+  storyTitle: z.string().trim().max(160).optional().or(z.literal("")),
+  storyText: z.string().trim().max(900).optional().or(z.literal("")),
+  bookingEnabled: z.boolean().optional(),
 });
 
 export async function GET(): Promise<Response> {
@@ -32,6 +38,7 @@ export async function GET(): Promise<Response> {
     select: {
       id: true, name: true, slug: true, address: true,
       phone: true, logoUrl: true, isActive: true,
+      storyEnabled: true, storyTitle: true, storyText: true, bookingEnabled: true,
       city: { select: { id: true, name: true, slug: true } },
     },
   });
@@ -52,6 +59,10 @@ export async function POST(request: Request): Promise<Response> {
       data: {
         cityId: d.cityId, name: d.name, slug: d.slug, address: d.address,
         phone: d.phone || null, logoUrl: d.logoUrl || null, isActive: d.isActive ?? true,
+        storyEnabled: d.storyEnabled ?? false,
+        storyTitle: d.storyTitle || null,
+        storyText: d.storyText || null,
+        bookingEnabled: d.bookingEnabled ?? false,
       },
       select: { id: true, name: true, slug: true },
     });
@@ -121,6 +132,10 @@ export async function PATCH(request: Request): Promise<Response> {
         phone: d.phone || null,
         logoUrl: d.logoUrl || null,
         isActive: d.isActive ?? true,
+        storyEnabled: d.storyEnabled ?? false,
+        storyTitle: d.storyTitle || null,
+        storyText: d.storyText || null,
+        bookingEnabled: d.bookingEnabled ?? false,
       },
       select: { id: true, name: true, slug: true, logoUrl: true, isActive: true },
     });
@@ -128,6 +143,43 @@ export async function PATCH(request: Request): Promise<Response> {
     return Response.json({ ok: true, venue });
   } catch (e) {
     console.error("[PATCH /api/admin/venues]", e);
+    return Response.json({ ok: false, error: "INTERNAL_ERROR" }, { status: 500 });
+  }
+}
+
+/**
+ * Удаляет заведение и связанные данные (меню, популярное и т.д.).
+ *
+ * Если по заведению есть заказы — удаление отклоняется, чтобы не терять историю.
+ *
+ * @param request - URL с query `?id=<venueId>`
+ */
+export async function DELETE(request: Request): Promise<Response> {
+  if (!(await guard())) return Response.json({ ok: false, error: "FORBIDDEN" }, { status: 403 });
+
+  try {
+    const id = new URL(request.url).searchParams.get("id");
+    if (!id) {
+      return Response.json({ ok: false, error: "ID_REQUIRED" }, { status: 400 });
+    }
+
+    const existing = await prisma.venue.findUnique({ where: { id }, select: { id: true } });
+    if (!existing) {
+      return Response.json({ ok: false, error: "NOT_FOUND" }, { status: 404 });
+    }
+
+    const orderCount = await prisma.order.count({ where: { venueId: id } });
+    if (orderCount > 0) {
+      return Response.json(
+        { ok: false, error: "VENUE_HAS_ORDERS", orderCount },
+        { status: 409 },
+      );
+    }
+
+    await prisma.venue.delete({ where: { id } });
+    return Response.json({ ok: true });
+  } catch (e) {
+    console.error("[DELETE /api/admin/venues]", e);
     return Response.json({ ok: false, error: "INTERNAL_ERROR" }, { status: 500 });
   }
 }

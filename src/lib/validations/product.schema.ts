@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { imageUrlSchema } from "@/lib/validations/image-url";
+
 /**
  * Zod-схема формы создания/редактирования товара в административной панели.
  */
@@ -8,11 +10,11 @@ export const productSchema = z.object({
   slug: z
     .string()
     .trim()
-    .min(1, "Введите slug")
+    .min(1, "Укажите адрес в ссылке")
     .max(100)
     .regex(/^[a-z0-9-]+$/, "Только строчные латинские буквы, цифры и дефисы"),
   description: z.string().trim().max(1000, "Слишком длинное описание").optional(),
-  imageUrl: z.string().trim().url("Некорректный URL изображения").optional().or(z.literal("")),
+  imageUrl: imageUrlSchema("Некорректный URL изображения").optional().or(z.literal("")),
   weight: z.string().trim().max(50, "Слишком длинное значение").optional(),
   composition: z.string().trim().max(500, "Слишком длинный состав").optional(),
   /** Цена в рублях (целое число). На сервере конвертируется в копейки умножением × 100 */
@@ -25,4 +27,5 @@ export const productSchema = z.object({
   isStopList: z.boolean().optional(),
 });
 
-export type ProductFormData = z.infer<typeof productSchema>;
+export type ProductFormInput = z.input<typeof productSchema>;
+export type ProductFormData = z.output<typeof productSchema>;

@@ -47,6 +47,10 @@ model Venue {
   /// URL логотипа. Может быть пустым — UI показывает заглушку
   logoUrl  String?
   isActive Boolean @default(true)
+  storyEnabled Boolean @default(false)
+  storyTitle   String?
+  storyText    String?
+  bookingEnabled Boolean @default(false)
 
   city City @relation(fields: [cityId], references: [id], onDelete: Cascade)
 

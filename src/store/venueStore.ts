@@ -15,6 +15,10 @@ export type Venue = {
   address: string;
   phone?: string | null;
   logoUrl?: string | null;
+  storyEnabled?: boolean;
+  storyTitle?: string | null;
+  storyText?: string | null;
+  bookingEnabled?: boolean;
 };
 
 export type VenuePickerStep = "city" | "venue";
@@ -89,6 +93,7 @@ export const useVenueStore = create<VenueStore>()(
     }),
     {
       name: "venue-storage",
+      skipHydration: true,
       partialize: (state) => ({
         selectedCity: state.selectedCity,
         selectedVenue: state.selectedVenue,
