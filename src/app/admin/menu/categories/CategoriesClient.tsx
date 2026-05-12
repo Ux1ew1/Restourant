@@ -58,7 +58,7 @@ export function AdminCategoriesClient() {
       setCategories((prev) => [...prev, json.category]);
       setNewName(""); setNewSlug("");
     } else {
-      alert(json.error === "SLUG_TAKEN" ? "Такой slug уже есть" : "Ошибка создания");
+      alert(json.error === "SLUG_TAKEN" ? "Такой адрес в ссылке уже занят" : "Ошибка создания");
     }
     setIsAdding(false);
   }
@@ -130,7 +130,7 @@ export function AdminCategoriesClient() {
           <input
             value={newSlug}
             onChange={(e) => setNewSlug(e.target.value)}
-            placeholder="slug"
+            placeholder="naprimer-supy"
             className="w-32 rounded-xl border border-vanilla-200 bg-vanilla-50 px-4 py-2 text-sm focus:border-vanilla-500 focus:outline-none"
           />
           <button
@@ -175,7 +175,7 @@ export function AdminCategoriesClient() {
                   <div className="flex flex-1 items-center justify-between gap-2">
                     <div>
                       <p className="text-sm font-medium text-vanilla-900">{cat.name}</p>
-                      <p className="text-xs text-vanilla-500">{cat.slug} · порядок: {cat.sortOrder}</p>
+                      <p className="text-xs text-vanilla-500">В ссылке: {cat.slug} · порядок: {cat.sortOrder}</p>
                     </div>
                     <div className="flex items-center gap-2">
                       <button

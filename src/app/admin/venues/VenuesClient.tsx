@@ -1,14 +1,37 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { VenueForm } from "@/components/admin/VenueForm";
 
-interface City { id: string; name: string; slug: string; }
+interface City {
+  id: string;
+  name: string;
+  slug: string;
+  isActive: boolean;
+}
+
 interface VenueRow {
-  id: string; name: string; slug: string; address: string;
-  phone: string | null; logoUrl: string | null; isActive: boolean;
+  id: string;
+  name: string;
+  slug: string;
+  address: string;
+  phone: string | null;
+  logoUrl: string | null;
+  isActive: boolean;
   city: City;
+}
+
+async function fetchAdminCities(): Promise<City[]> {
+  const res = await fetch("/api/admin/cities");
+  const json = (await res.json()) as { ok: boolean; cities?: City[] };
+  return json.ok && Array.isArray(json.cities) ? json.cities : [];
+}
+
+async function fetchAdminVenues(): Promise<VenueRow[]> {
+  const res = await fetch("/api/admin/venues");
+  const json = (await res.json()) as { ok: boolean; venues?: VenueRow[] };
+  return json.ok && Array.isArray(json.venues) ? json.venues : [];
 }
 
 /**
@@ -22,16 +45,15 @@ export function AdminVenuesClient() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editVenue, setEditVenue] = useState<VenueRow | null>(null);
 
-  useEffect(() => {
-    Promise.all([
-      fetch("/api/admin/venues").then((r) => r.json()),
-      fetch("/api/cities").then((r) => r.json()),
-    ]).then(([vRes, cRes]) => {
-      if ((vRes as { ok: boolean; venues: VenueRow[] }).ok) setVenues((vRes as { ok: boolean; venues: VenueRow[] }).venues);
-      if ((cRes as { ok: boolean; cities: City[] }).ok) setCities((cRes as { ok: boolean; cities: City[] }).cities);
-      setIsLoading(false);
-    });
+  const reload = useCallback(async () => {
+    const [v, c] = await Promise.all([fetchAdminVenues(), fetchAdminCities()]);
+    setVenues(v);
+    setCities(c);
   }, []);
+
+  useEffect(() => {
+    reload().finally(() => setIsLoading(false));
+  }, [reload]);
 
   async function toggleActive(id: string, current: boolean) {
     await fetch(`/api/admin/venues`, {
@@ -39,24 +61,61 @@ export function AdminVenuesClient() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, isActive: !current }),
     });
-    setVenues((prev) => prev.map((v) => v.id === id ? { ...v, isActive: !current } : v));
+    setVenues((prev) => prev.map((v) => (v.id === id ? { ...v, isActive: !current } : v)));
   }
+
+  async function deleteVenue(id: string, name: string) {
+    if (
+      !confirm(
+        `Удалить заведение «${name}» безвозвратно? Меню и связанные данные будут удалены. Если были заказы — удаление будет отклонено.`,
+      )
+    ) {
+      return;
+    }
+    const res = await fetch(`/api/admin/venues?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+    const json = (await res.json()) as { ok: boolean; error?: string; orderCount?: number };
+    if (json.ok) {
+      await reload();
+    } else if (json.error === "VENUE_HAS_ORDERS") {
+      alert(
+        `Нельзя удалить: по заведению есть заказы (${json.orderCount ?? "?"}). Отключите точку или обратитесь к разработчику для архивации.`,
+      );
+    } else {
+      alert("Не удалось удалить заведение.");
+    }
+  }
+
+  const createCityInForm = useCallback(async (data: { name: string }) => {
+      const res = await fetch("/api/admin/cities", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: data.name.trim() }),
+      });
+      const json = (await res.json()) as { ok: boolean; city?: { id: string }; error?: string };
+      if (json.ok && json.city?.id) {
+        setCities(await fetchAdminCities());
+        return { ok: true as const, id: json.city.id };
+      }
+      if (json.error === "SLUG_TAKEN") {
+        return { ok: false as const, error: "Город с таким адресом в ссылке уже есть." };
+      }
+      return { ok: false as const, error: "Не удалось создать город." };
+    },
+    []);
 
   async function handleSubmit(data: Parameters<typeof VenueForm>[0]["defaultValues"] & object) {
     setIsSubmitting(true);
-    const url = editVenue ? `/api/admin/venues` : "/api/admin/venues";
     const method = editVenue ? "PATCH" : "POST";
     const body = editVenue ? { id: editVenue.id, ...data } : data;
 
-    const res = await fetch(url, {
+    const res = await fetch("/api/admin/venues", {
       method,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
-    const json = await res.json() as { ok: boolean };
+    const json = (await res.json()) as { ok: boolean };
     if (json.ok) {
-      const vRes = await fetch("/api/admin/venues").then((r) => r.json()) as { ok: boolean; venues: VenueRow[] };
-      if (vRes.ok) setVenues(vRes.venues);
+      await reload();
       setShowForm(false);
       setEditVenue(null);
     }
@@ -65,30 +124,52 @@ export function AdminVenuesClient() {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-serif text-2xl font-bold text-vanilla-900">Заведения</h1>
         <button
-          onClick={() => { setShowForm(true); setEditVenue(null); }}
+          onClick={() => {
+            setShowForm(true);
+            setEditVenue(null);
+          }}
           className="rounded-xl bg-vanilla-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-vanilla-400"
         >
-          + Добавить
+          + Добавить заведение
         </button>
       </div>
 
-      {/* Форма */}
       {showForm && (
         <div className="mt-6 rounded-2xl border border-vanilla-200 bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-semibold text-vanilla-900">{editVenue ? "Редактировать" : "Новое заведение"}</h2>
-            <button onClick={() => { setShowForm(false); setEditVenue(null); }} className="text-sm text-vanilla-500">✕</button>
+            <h2 className="font-semibold text-vanilla-900">{editVenue ? "Редактировать заведение" : "Новое заведение"}</h2>
+            <button
+              type="button"
+              onClick={() => {
+                setShowForm(false);
+                setEditVenue(null);
+              }}
+              className="text-sm text-vanilla-500"
+            >
+              ✕
+            </button>
           </div>
+
           <VenueForm
+            key={editVenue?.id ?? "new-venue"}
             cities={cities}
-            defaultValues={editVenue ? {
-              cityId: editVenue.city.id, name: editVenue.name, slug: editVenue.slug,
-              address: editVenue.address, phone: editVenue.phone ?? "", logoUrl: editVenue.logoUrl ?? "",
-              isActive: editVenue.isActive,
-            } : undefined}
+            onCreateCity={createCityInForm}
+            defaultValues={
+              editVenue
+                ? {
+                    cityId: editVenue.city.id,
+                    name: editVenue.name,
+                    slug: editVenue.slug,
+                    address: editVenue.address,
+                    phone: editVenue.phone ?? "",
+                    logoUrl: editVenue.logoUrl ?? "",
+                    isActive: editVenue.isActive,
+                  }
+                : undefined
+            }
             onSubmit={handleSubmit}
             isSubmitting={isSubmitting}
             submitLabel={editVenue ? "Сохранить" : "Создать"}
@@ -96,7 +177,6 @@ export function AdminVenuesClient() {
         </div>
       )}
 
-      {/* Список */}
       <div className="mt-6 space-y-3">
         {isLoading && <div className="py-16 text-center text-vanilla-500">Загрузка...</div>}
         {!isLoading && venues.length === 0 && <div className="py-16 text-center text-vanilla-500">Заведений нет</div>}
@@ -104,27 +184,43 @@ export function AdminVenuesClient() {
           <div key={v.id} className="rounded-2xl border border-vanilla-200 bg-white p-5">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <p className="font-semibold text-vanilla-900">{v.name}</p>
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${v.isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${v.isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}
+                  >
                     {v.isActive ? "Активно" : "Отключено"}
                   </span>
                 </div>
-                <p className="text-sm text-vanilla-600">{v.city.name} · {v.address}</p>
+                <p className="text-sm text-vanilla-600">
+                  {v.city.name} · {v.address}
+                </p>
                 {v.phone && <p className="text-xs text-vanilla-500">{v.phone}</p>}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center justify-end gap-2">
                 <button
-                  onClick={() => { setEditVenue(v); setShowForm(true); }}
+                  type="button"
+                  onClick={() => {
+                    setEditVenue(v);
+                    setShowForm(true);
+                  }}
                   className="rounded-lg border border-vanilla-200 px-3 py-1 text-xs text-vanilla-600 hover:bg-vanilla-100"
                 >
                   Изменить
                 </button>
                 <button
+                  type="button"
                   onClick={() => toggleActive(v.id, v.isActive)}
                   className={`rounded-lg border px-3 py-1 text-xs font-medium transition ${v.isActive ? "border-red-200 text-red-500 hover:bg-red-50" : "border-green-200 text-green-600 hover:bg-green-50"}`}
                 >
                   {v.isActive ? "Отключить" : "Включить"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => deleteVenue(v.id, v.name)}
+                  className="rounded-lg border border-red-300 px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-50"
+                >
+                  Удалить
                 </button>
               </div>
             </div>

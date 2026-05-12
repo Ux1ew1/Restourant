@@ -1,10 +1,16 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { productSchema, type ProductFormData } from "@/lib/validations/product.schema";
+import { slugFromTitle } from "@/lib/slugFromTitle";
+import { uploadAdminImage } from "@/lib/admin-image-upload";
+import {
+  productSchema,
+  type ProductFormData,
+  type ProductFormInput,
+} from "@/lib/validations/product.schema";
 
 interface Category {
   id: string;
@@ -29,7 +35,7 @@ interface ProductFormProps {
  * Форма добавления / редактирования товара.
  *
  * Поле «цена» принимает значение в рублях; конвертация в копейки выполняется в API-маршруте.
- * Автогенерация slug из названия — вспомогательная кнопка рядом с полем.
+ * Автогенерация адреса в ссылке из названия — кнопка «Авто» рядом с полем.
  *
  * @param categories - Список категорий заведения
  * @param defaultValues - Предзаполненные значения для редактирования
@@ -50,7 +56,7 @@ export function ProductForm({
     watch,
     setValue,
     formState: { errors },
-  } = useForm<ProductFormData>({
+  } = useForm<ProductFormInput, unknown, ProductFormData>({
     resolver: zodResolver(productSchema),
     defaultValues: {
       isHidden: false,
@@ -63,26 +69,31 @@ export function ProductForm({
   useEffect(() => {
     if (defaultValues) {
       Object.entries(defaultValues).forEach(([key, value]) => {
-        setValue(key as keyof ProductFormData, value as never);
+        setValue(key as keyof ProductFormInput, value as never);
       });
     }
   }, [defaultValues, setValue]);
 
   function generateSlug() {
     const name = watch("name") ?? "";
-    const slug = name
-      .toLowerCase()
-      .replace(/[а-яё]/g, (ch) => {
-        const map: Record<string, string> = {
-          а:"a",б:"b",в:"v",г:"g",д:"d",е:"e",ё:"yo",ж:"zh",з:"z",и:"i",й:"y",к:"k",л:"l",м:"m",
-          н:"n",о:"o",п:"p",р:"r",с:"s",т:"t",у:"u",ф:"f",х:"kh",ц:"ts",ч:"ch",ш:"sh",щ:"shch",
-          ъ:"",ы:"y",ь:"",э:"e",ю:"yu",я:"ya",
-        };
-        return map[ch] ?? ch;
-      })
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "");
-    setValue("slug", slug);
+    setValue("slug", slugFromTitle(name), { shouldValidate: true, shouldDirty: true });
+  }
+
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  async function handleImageUpload(file: File | null) {
+    if (!file) return;
+    setUploadingImage(true);
+    setUploadError(null);
+    try {
+      const url = await uploadAdminImage(file, "menu");
+      setValue("imageUrl", url, { shouldDirty: true, shouldValidate: true });
+    } catch {
+      setUploadError("Не удалось загрузить изображение. Попробуйте другой файл.");
+    } finally {
+      setUploadingImage(false);
+    }
   }
 
   const fieldClass =
@@ -99,11 +110,11 @@ export function ProductForm({
         {errors.name && <p className={errorClass}>{errors.name.message}</p>}
       </div>
 
-      {/* Slug */}
+      {/* Адрес в URL (латиница) */}
       <div>
-        <label className={labelClass}>Slug (URL) <span className="text-red-500">*</span></label>
+        <label className={labelClass}>Адрес в ссылке (латиница) <span className="text-red-500">*</span></label>
         <div className="flex gap-2">
-          <input {...register("slug")} placeholder="pizza-margarita" className={fieldClass} />
+          <input {...register("slug")} placeholder="naprimer-picca-margarita" className={fieldClass} />
           <button
             type="button"
             onClick={generateSlug}
@@ -144,6 +155,20 @@ export function ProductForm({
       <div>
         <label className={labelClass}>URL изображения</label>
         <input {...register("imageUrl")} type="url" placeholder="https://..." className={fieldClass} />
+        <div className="mt-2">
+          <input
+            type="file"
+            accept="image/*"
+            disabled={uploadingImage}
+            onChange={(e) => void handleImageUpload(e.target.files?.[0] ?? null)}
+            className="block w-full cursor-pointer text-xs text-vanilla-600 file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-vanilla-100 file:px-3 file:py-2 file:text-xs file:font-medium file:text-vanilla-700 hover:file:bg-vanilla-200"
+          />
+          <p className="mt-1 text-xs text-vanilla-500">
+            Загрузка с ПК и автосжатие для фото блюд (до 1280px, WebP).
+          </p>
+          {uploadingImage ? <p className="mt-1 text-xs text-vanilla-500">Загружаем...</p> : null}
+          {uploadError ? <p className={errorClass}>{uploadError}</p> : null}
+        </div>
         {errors.imageUrl && <p className={errorClass}>{errors.imageUrl.message}</p>}
       </div>
 

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
+import type { ReactNode } from "react";
 
 /** Один пункт навигации боковой панели */
 interface NavItem {
@@ -113,21 +114,49 @@ const navItems: NavItem[] = [
  *
  * Подсвечивает активный маршрут на основе текущего `pathname`.
  * Кнопка «Выйти» вызывает `signOut` из next-auth/react.
+ *
+ * @param mobileNavOpen — на узких экранах: сайдбар выезжает слева
+ * @param onCloseMobileNav — закрыть после перехода по ссылке
+ * @param venuePickerSlot — блок выбора заведения (на десктопе под заголовком)
  */
-export function AdminSidebar() {
+export function AdminSidebar({
+  mobileNavOpen = false,
+  onCloseMobileNav,
+  venuePickerSlot,
+}: {
+  mobileNavOpen?: boolean;
+  onCloseMobileNav?: () => void;
+  venuePickerSlot?: ReactNode;
+}) {
   const pathname = usePathname();
 
   function isActive(item: NavItem) {
     if (item.exact) return pathname === item.href;
+    // «Меню» — /admin/menu и вложенные маршруты, кроме /admin/menu/categories (отдельный пункт)
+    if (item.href === "/admin/menu" && pathname.startsWith("/admin/menu/categories")) {
+      return false;
+    }
     return pathname === item.href || pathname.startsWith(item.href + "/");
   }
 
   return (
-    <aside className="flex h-full w-60 shrink-0 flex-col border-r border-vanilla-200 bg-vanilla-50">
+    <aside
+      id="admin-sidebar"
+      className={`fixed inset-y-0 left-0 z-50 flex h-full w-[min(16rem,85vw)] shrink-0 flex-col border-r border-vanilla-200 bg-vanilla-50 transition-transform duration-200 ease-out lg:static lg:z-auto lg:w-60 lg:translate-x-0 ${
+        mobileNavOpen ? "translate-x-0" : "-translate-x-full"
+      }`}
+    >
       {/* Логотип */}
       <div className="flex h-16 items-center gap-2 border-b border-vanilla-200 px-5">
         <span className="font-serif text-lg font-bold text-vanilla-800">Админ-панель</span>
       </div>
+
+      {venuePickerSlot ? (
+        <div className="hidden border-b border-vanilla-200 px-3 py-3 lg:block">
+          <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-vanilla-500">Рабочее заведение</p>
+          {venuePickerSlot}
+        </div>
+      ) : null}
 
       {/* Навигация */}
       <nav className="flex-1 overflow-y-auto py-4">
@@ -138,7 +167,8 @@ export function AdminSidebar() {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+                  onClick={() => onCloseMobileNav?.()}
+                  className={`flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
                     active
                       ? "bg-vanilla-500 text-white"
                       : "text-vanilla-700 hover:bg-vanilla-200 hover:text-vanilla-900"
@@ -154,11 +184,12 @@ export function AdminSidebar() {
       </nav>
 
       {/* Нижняя панель: ссылка на сайт + выход */}
-      <div className="border-t border-vanilla-200 p-3 space-y-1">
+      <div className="space-y-1 border-t border-vanilla-200 p-3">
         <Link
           href="/"
           target="_blank"
-          className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-vanilla-600 hover:bg-vanilla-200 hover:text-vanilla-900 transition"
+          onClick={() => onCloseMobileNav?.()}
+          className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-vanilla-600 transition hover:bg-vanilla-200 hover:text-vanilla-900"
         >
           <span className="h-5 w-5 shrink-0">
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -168,8 +199,12 @@ export function AdminSidebar() {
           Перейти на сайт
         </Link>
         <button
-          onClick={() => signOut({ callbackUrl: "/login" })}
-          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-vanilla-600 hover:bg-red-50 hover:text-red-600 transition"
+          type="button"
+          onClick={() => {
+            onCloseMobileNav?.();
+            void signOut({ callbackUrl: "/login" });
+          }}
+          className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-vanilla-600 transition hover:bg-red-50 hover:text-red-600"
         >
           <span className="h-5 w-5 shrink-0">
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
