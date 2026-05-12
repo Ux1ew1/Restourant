@@ -48,6 +48,7 @@ export function VenuePicker({
   onSelectCity,
   onSelectVenue,
   onBack,
+  onClose,
 }: {
   open: boolean;
   step: "city" | "venue";
@@ -55,10 +56,12 @@ export function VenuePicker({
   onSelectCity: (city: City) => void;
   onSelectVenue: (venue: Venue) => void;
   onBack: () => void;
+  onClose: () => void;
 }) {
   const [cities, setCities] = useState<City[] | null>(null);
   const [citiesLoading, setCitiesLoading] = useState(false);
   const [citiesError, setCitiesError] = useState<string | null>(null);
+  const [cityCount, setCityCount] = useState(0);
 
   const [venues, setVenues] = useState<Venue[] | null>(null);
   const [venuesLoading, setVenuesLoading] = useState(false);
@@ -90,6 +93,7 @@ export function VenuePicker({
           return;
         }
         const mapped = data.cities.map((c) => ({ id: c.id, name: c.name, slug: c.slug }));
+        setCityCount(mapped.length);
         if (mapped.length === 1) {
           onSelectCity(mapped[0]);
           return;
@@ -152,6 +156,8 @@ export function VenuePicker({
     return () => controller.abort();
   }, [open, step, selectedCity]);
 
+  const canGoBackToCity = cityCount > 1;
+
   return (
     <AnimatePresence>
       {open ? (
@@ -162,6 +168,12 @@ export function VenuePicker({
           exit={{ opacity: 0 }}
           aria-modal="true"
           role="dialog"
+          onMouseDown={(event) => {
+            if (event.target !== event.currentTarget) return;
+            if (window.matchMedia("(min-width: 640px)").matches) {
+              onClose();
+            }
+          }}
         >
           <motion.div
             className="w-full max-w-xs overflow-hidden rounded-2xl border border-vanilla-200 bg-vanilla-50 shadow-2xl"
@@ -185,9 +197,16 @@ export function VenuePicker({
                     <p className="text-[11px] uppercase tracking-wider text-vanilla-500">
                       Ваш город
                     </p>
-                    <h2 className="mt-1 text-base font-semibold text-vanilla-900">
-                      Выберите город
-                    </h2>
+                    <div className="mt-1 flex items-center justify-between gap-2">
+                      <h2 className="text-base font-semibold text-vanilla-900">Выберите город</h2>
+                      <button
+                        type="button"
+                        onClick={onClose}
+                        className="rounded-md px-2 py-1 text-xs font-medium text-vanilla-500 transition hover:bg-vanilla-100 hover:text-vanilla-800 sm:hidden"
+                      >
+                        Закрыть
+                      </button>
+                    </div>
                   </div>
 
                   <div className="flex flex-col gap-1.5 px-3 py-3">
@@ -224,15 +243,23 @@ export function VenuePicker({
                   <div className="border-b border-vanilla-200 px-4 py-4">
                     <button
                       type="button"
-                      onClick={onBack}
-                      className="mb-2 flex items-center gap-1 text-[11px] uppercase tracking-wider text-vanilla-500 transition hover:text-vanilla-800"
+                      onClick={canGoBackToCity ? onBack : undefined}
+                      disabled={!canGoBackToCity}
+                      className="mb-2 flex items-center gap-1 text-[11px] uppercase tracking-wider text-vanilla-500 transition hover:text-vanilla-800 disabled:cursor-not-allowed disabled:text-vanilla-300"
                     >
                       <span>←</span>
                       <span>{selectedCity?.name ?? "Назад"}</span>
                     </button>
-                    <h2 className="text-base font-semibold text-vanilla-900">
-                      Выберите заведение
-                    </h2>
+                    <div className="flex items-center justify-between gap-2">
+                      <h2 className="text-base font-semibold text-vanilla-900">Выберите заведение</h2>
+                      <button
+                        type="button"
+                        onClick={onClose}
+                        className="rounded-md px-2 py-1 text-xs font-medium text-vanilla-500 transition hover:bg-vanilla-100 hover:text-vanilla-800 sm:hidden"
+                      >
+                        Закрыть
+                      </button>
+                    </div>
                   </div>
 
                   <div className="flex flex-col gap-1.5 px-3 py-3">

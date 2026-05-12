@@ -1,14 +1,15 @@
+import type { Metadata } from "next";
+
+import { CartPageClient } from "./CartPageClient";
+
+export const metadata: Metadata = {
+  title: "Корзина",
+  description: "Позиции заказа, количество и сумма перед оформлением.",
+};
+
 /**
- * Заглушка корзины до этапа 8 (ссылка из шапки не должна вести на 404).
+ * Страница корзины: список товаров и переход к оформлению заказа.
  */
 export default function CartPage() {
-  return (
-    <div>
-      <h1 className="text-2xl font-semibold text-vanilla-800">Корзина</h1>
-      <p className="mt-3 text-vanilla-700">
-        Оформление корзины будет реализовано на этапе 8. Сейчас бейдж в шапке можно
-        проверить через временное значение в <code className="rounded bg-vanilla-200 px-1">cartStore</code>.
-      </p>
-    </div>
-  );
+  return <CartPageClient />;
 }
