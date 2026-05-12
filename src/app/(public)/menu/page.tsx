@@ -1,13 +1,28 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
+import { JsonLd } from "@/components/seo/JsonLd";
+import {
+  buildMetadata,
+  getMenuJsonLd,
+  getPrimaryVenueSeoContext,
+  getVenueDescription,
+} from "@/lib/seo";
+
 import { MenuPageClient } from "./MenuPageClient";
 
-export const metadata: Metadata = {
-  title: "Меню",
-  description:
-    "Категории и блюда выбранного заведения: цены, граммовки и быстрый заказ онлайн.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const venue = await getPrimaryVenueSeoContext();
+
+  return buildMetadata({
+    title: venue ? `Меню ${venue.name}` : "Меню",
+    description: venue
+      ? getVenueDescription(venue)
+      : "Категории и блюда ресторана: цены, граммовки и быстрый заказ онлайн.",
+    path: "/menu",
+    image: venue?.logoUrl,
+  });
+}
 
 function MenuFallback() {
   return (
@@ -25,13 +40,15 @@ function MenuFallback() {
   );
 }
 
-/**
- * Страница меню заведения: категории и сетка товаров с фильтром по query `category`.
- */
-export default function MenuPage() {
+export default async function MenuPage() {
+  const venue = await getPrimaryVenueSeoContext();
+
   return (
-    <Suspense fallback={<MenuFallback />}>
-      <MenuPageClient />
-    </Suspense>
+    <>
+      <JsonLd data={getMenuJsonLd(venue)} />
+      <Suspense fallback={<MenuFallback />}>
+        <MenuPageClient />
+      </Suspense>
+    </>
   );
 }

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Restaurant">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#FAF7F0"/>
+      <stop offset="1" stop-color="#E8DCC8"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="35%" r="55%">
+      <stop offset="0" stop-color="#C4A882" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#C4A882" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <circle cx="600" cy="315" r="152" fill="none" stroke="#C4A882" stroke-width="22"/>
+  <circle cx="600" cy="315" r="106" fill="none" stroke="#8B6B3D" stroke-width="6" opacity="0.6"/>
+  <path d="M505 255h190c-15 73-55 109-95 109s-80-36-95-109Z" fill="#5C4427"/>
+  <path d="M470 407h260" stroke="#5C4427" stroke-width="18" stroke-linecap="round"/>
+  <text x="600" y="115" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="70" font-weight="700" fill="#3A2A17">Restaurant</text>
+  <text x="600" y="540" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" fill="#5C4427">Меню, доставка и самовывоз</text>
+</svg>

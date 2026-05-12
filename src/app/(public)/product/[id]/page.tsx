@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { JsonLd } from "@/components/seo/JsonLd";
 import { getPublicProductById } from "@/lib/public-product";
+import { absoluteUrl, buildMetadata, truncateDescription } from "@/lib/seo";
 
 import { ProductPageClient } from "./ProductPageClient";
 
@@ -10,21 +12,30 @@ type PageProps = {
   params: Promise<{ id: string }>;
 };
 
-/**
- * Страница товара: серверная загрузка данных, метаданные и хлебные крошки.
- */
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const product = await getPublicProductById(id);
+
   if (!product) {
-    return { title: "Товар не найден" };
+    return buildMetadata({
+      title: "Товар не найден",
+      description: "Запрошенная позиция меню не найдена или временно недоступна.",
+      path: `/product/${id}`,
+      noIndex: true,
+    });
   }
-  return {
-    title: product.name,
-    description:
-      product.description?.slice(0, 160) ??
-      `${product.name} — ${product.venue.name}, ${product.category.name}`,
-  };
+
+  const description = truncateDescription(
+    product.description ??
+      `${product.name} — ${product.venue.name}, ${product.category.name}. Цена ${product.price / 100} ₽.`,
+  );
+
+  return buildMetadata({
+    title: `${product.name} — ${product.venue.name}`,
+    description,
+    path: `/product/${product.id}`,
+    image: product.imageUrl,
+  });
 }
 
 export default async function ProductPage({ params }: PageProps) {
@@ -32,9 +43,36 @@ export default async function ProductPage({ params }: PageProps) {
   const product = await getPublicProductById(id);
   if (!product) notFound();
 
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description ?? undefined,
+    image: absoluteUrl(product.imageUrl || "/og-image.svg"),
+    sku: product.id,
+    category: product.category.name,
+    brand: {
+      "@type": "Brand",
+      name: product.venue.name,
+    },
+    offers: {
+      "@type": "Offer",
+      url: absoluteUrl(`/product/${product.id}`),
+      price: product.price / 100,
+      priceCurrency: "RUB",
+      availability: product.isStopList
+        ? "https://schema.org/OutOfStock"
+        : "https://schema.org/InStock",
+    },
+  };
+
   return (
     <div>
-      <nav className="mb-6 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-vanilla-600" aria-label="Хлебные крошки">
+      <JsonLd data={productJsonLd} />
+      <nav
+        className="mb-6 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-vanilla-600"
+        aria-label="Хлебные крошки"
+      >
         <Link href="/" className="transition hover:text-vanilla-900 hover:underline">
           Главная
         </Link>

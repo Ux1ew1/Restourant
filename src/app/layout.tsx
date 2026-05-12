@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 
+import { DEFAULT_OG_IMAGE, SITE_NAME, absoluteUrl, getSiteUrl } from "@/lib/seo";
+
 import { AppProviders } from "./providers";
 import "./globals.css";
 
@@ -18,8 +20,34 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Restaurant",
-  description: "Сайт ресторана",
+  metadataBase: new URL(getSiteUrl()),
+  title: {
+    default: SITE_NAME,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: "Сайт ресторана с онлайн-меню, доставкой и самовывозом.",
+  openGraph: {
+    title: SITE_NAME,
+    description: "Онлайн-меню ресторана, доставка и самовывоз.",
+    url: getSiteUrl(),
+    siteName: SITE_NAME,
+    locale: "ru_RU",
+    type: "website",
+    images: [
+      {
+        url: absoluteUrl(DEFAULT_OG_IMAGE),
+        width: 1200,
+        height: 630,
+        alt: SITE_NAME,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_NAME,
+    description: "Онлайн-меню ресторана, доставка и самовывоз.",
+    images: [absoluteUrl(DEFAULT_OG_IMAGE)],
+  },
 };
 
 export default function RootLayout({
@@ -35,4 +63,3 @@ export default function RootLayout({
     </html>
   );
 }
-
