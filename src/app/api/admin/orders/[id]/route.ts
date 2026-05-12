@@ -8,11 +8,11 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
-/** Допустимые статусы заказа и их переходы */
-const ORDER_STATUSES = ["new", "accepted", "in_progress", "delivering", "done", "cancelled"] as const;
+/** Допустимые статусы заказа для PATCH-запроса. */
+const VALID_ORDER_STATUS_VALUES = ["new", "accepted", "in_progress", "delivering", "done", "cancelled"] as const;
 
 const patchSchema = z.object({
-  status: z.enum(ORDER_STATUSES),
+  status: z.enum(VALID_ORDER_STATUS_VALUES),
 });
 
 /**
