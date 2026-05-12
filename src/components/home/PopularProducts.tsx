@@ -7,8 +7,6 @@ import Link from "next/link";
 import { formatPriceFromKopecks } from "@/lib/utils";
 import type { HomePopularProduct } from "@/types/home";
 
-const PLACEHOLDER = "/images/placeholder/product-placeholder.svg";
-
 /** Пропсы горизонтальной полосы популярных товаров */
 interface PopularProductsProps {
   /** Список популярных позиций */
@@ -99,14 +97,20 @@ export function PopularProducts({ products, error, loading }: PopularProductsPro
                 p.isStopList ? "opacity-90" : ""
               }`}
             >
-              <div className="relative aspect-[4/3] bg-vanilla-100">
-                <Image
-                  src={p.imageUrl || PLACEHOLDER}
-                  alt={p.name}
-                  fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                  sizes="220px"
-                />
+              <div className="relative aspect-4/3 bg-vanilla-100">
+                {p.imageUrl ? (
+                  <Image
+                    src={p.imageUrl}
+                    alt={p.name}
+                    fill
+                    className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                    sizes="220px"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center text-sm font-medium text-vanilla-500">
+                    No Image
+                  </div>
+                )}
                 {p.isStopList ? (
                   <span className="absolute left-2 top-2 rounded-md bg-vanilla-900/85 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-vanilla-50">
                     Стоп-лист

@@ -1,4 +1,8 @@
 import { prisma } from "@/lib/prisma";
+import { jsonWithPublicCache } from "@/lib/http-cache";
+
+export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 /**
  * @module /api/news
@@ -49,7 +53,7 @@ export async function GET(request: Request): Promise<Response> {
       },
     });
 
-    return Response.json({ ok: true, news });
+    return jsonWithPublicCache({ ok: true, news });
   } catch (e) {
     console.error(e);
     return Response.json({ ok: false, error: "INTERNAL_ERROR" }, { status: 500 });

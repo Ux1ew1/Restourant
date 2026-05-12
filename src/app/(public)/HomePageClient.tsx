@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
 import { CategoryNav } from "@/components/home/CategoryNav";
@@ -25,6 +26,7 @@ type HomeBlockError = {
  */
 export function HomePageClient() {
   const { selectedCity, selectedVenue, openVenuePicker } = useVenue();
+  const { data: session } = useSession();
 
   const [news, setNews] = useState<HomeNewsItem[]>([]);
   const [popular, setPopular] = useState<HomePopularProduct[]>([]);
@@ -52,8 +54,7 @@ export function HomePageClient() {
       setPopular([]);
       setCategories([]);
 
-      const base = (path: string) =>
-        fetch(path, { signal: controller.signal, cache: "no-store" });
+      const base = (path: string) => fetch(path, { signal: controller.signal });
 
       try {
         const settled = await Promise.allSettled([
@@ -157,10 +158,18 @@ export function HomePageClient() {
               >
                 Смотреть меню
               </Link>
+              {session?.user?.role === "ADMIN" ? (
+                <Link
+                  href="/admin"
+                  className="rounded-xl border border-vanilla-400 px-6 py-3 text-sm font-semibold text-vanilla-100 transition-colors duration-150 hover:border-vanilla-200 hover:bg-vanilla-800"
+                >
+                  Админ-панель
+                </Link>
+              ) : null}
               <button
                 type="button"
                 onClick={() => openVenuePicker(selectedCity ? "venue" : "city")}
-                className="rounded-xl border border-vanilla-700 px-6 py-3 text-sm font-medium text-vanilla-300 transition-colors duration-150 hover:border-vanilla-500 hover:text-vanilla-100"
+                className="cursor-pointer rounded-xl border border-vanilla-700 px-6 py-3 text-sm font-medium text-vanilla-300 transition-colors duration-150 hover:border-vanilla-500 hover:text-vanilla-100"
               >
                 {selectedVenue ? "Сменить заведение" : "Выбрать заведение"}
               </button>

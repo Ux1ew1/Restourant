@@ -120,14 +120,14 @@ export function CityModal({
                       key={city.id}
                       type="button"
                       onClick={() => onSelectCity(city)}
-                      className="group rounded-2xl border border-vanilla-200 bg-white px-5 py-4 text-left transition hover:border-vanilla-300 hover:bg-vanilla-100"
+                      className="group cursor-pointer rounded-2xl border border-vanilla-200 bg-white px-5 py-4 text-left transition hover:border-vanilla-300 hover:bg-vanilla-100"
                     >
                       <div className="flex items-center justify-between gap-4">
                         <div>
                           <div className="text-base font-medium text-vanilla-900">
                             {city.name}
                           </div>
-                          <div className="mt-1 text-xs text-vanilla-500">{city.slug}</div>
+                          <div className="mt-1 text-xs text-vanilla-500">В ссылке: {city.slug}</div>
                         </div>
                         <div className="text-vanilla-400 transition group-hover:translate-x-0.5 group-hover:text-vanilla-700">
                           →
@@ -148,4 +148,3 @@ export function CityModal({
     </AnimatePresence>
   );
 }
-

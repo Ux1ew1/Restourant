@@ -89,6 +89,7 @@ export const useVenueStore = create<VenueStore>()(
     }),
     {
       name: "venue-storage",
+      skipHydration: true,
       partialize: (state) => ({
         selectedCity: state.selectedCity,
         selectedVenue: state.selectedVenue,

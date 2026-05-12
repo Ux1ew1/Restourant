@@ -1,20 +1,34 @@
 import type { Metadata } from "next";
 
+import { JsonLd } from "@/components/seo/JsonLd";
+import {
+  buildMetadata,
+  getOrganizationJsonLd,
+  getPrimaryVenueSeoContext,
+  getRestaurantJsonLd,
+  getVenueDescription,
+} from "@/lib/seo";
+
 import { HomePageClient } from "./HomePageClient";
 
-export const metadata: Metadata = {
-  title: "Главная",
-  description:
-    "Заказ блюд на доставку и самовывоз: меню ресторана, акции и популярные позиции. Выберите заведение и оформите заказ онлайн.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const venue = await getPrimaryVenueSeoContext();
 
-/**
- * Главная страница витрины: hero, новости, популярное и быстрые ссылки на категории.
- *
- * Данные по заведению подгружаются на клиенте после выбора точки (`venueStore`);
- * мета-теги по умолчанию задаются здесь, а уточнение title/description выполняется
- * в `HomeMetadataEffect` при известном заведении.
- */
-export default function HomePage() {
-  return <HomePageClient />;
+  return buildMetadata({
+    title: venue ? `${venue.name} — главная` : "Главная",
+    description: getVenueDescription(venue),
+    path: "/",
+    image: venue?.logoUrl,
+  });
+}
+
+export default async function HomePage() {
+  const venue = await getPrimaryVenueSeoContext();
+
+  return (
+    <>
+      <JsonLd data={[getOrganizationJsonLd(), getRestaurantJsonLd(venue)].filter(Boolean)} />
+      <HomePageClient />
+    </>
+  );
 }

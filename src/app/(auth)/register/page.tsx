@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 
 import type { RegisterInput } from "@/lib/validations/auth.schema";
 import { registerSchema } from "@/lib/validations/auth.schema";
+import { PHONE_MASK_EXAMPLE } from "@/lib/validations/phone";
 
 /**
  * Страница регистрации пользователя.
@@ -115,7 +116,7 @@ export default function RegisterPage() {
             type="tel"
             autoComplete="tel"
             className="mt-1.5 w-full rounded-xl border border-vanilla-300 bg-vanilla-50 px-4 py-2.5 text-sm text-vanilla-900 outline-none placeholder:text-vanilla-400 transition-colors duration-150 hover:border-vanilla-400 focus:border-vanilla-500 focus:bg-vanilla-50"
-            placeholder="+7 (999) 000-00-00"
+            placeholder={PHONE_MASK_EXAMPLE}
             {...form.register("phone")}
           />
           {form.formState.errors.phone?.message ? (

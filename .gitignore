@@ -3,6 +3,7 @@ node_modules/
 out/
 .vercel/
 coverage/
+public/uploads/
 
 .env
 .env.local

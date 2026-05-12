@@ -121,7 +121,7 @@ export function VenueModal({
                 <button
                   type="button"
                   onClick={onBack}
-                  className="shrink-0 rounded-full border border-vanilla-200 bg-white px-4 py-2 text-sm font-medium text-vanilla-800 hover:bg-vanilla-100"
+                  className="shrink-0 cursor-pointer rounded-full border border-vanilla-200 bg-white px-4 py-2 text-sm font-medium text-vanilla-800 hover:bg-vanilla-100"
                 >
                   ← Назад
                 </button>
@@ -144,7 +144,7 @@ export function VenueModal({
                       key={venue.id}
                       type="button"
                       onClick={() => onSelectVenue(venue)}
-                      className="group flex w-full items-center justify-between gap-5 rounded-3xl border border-vanilla-200 bg-white px-5 py-4 text-left transition hover:border-vanilla-300 hover:bg-vanilla-100"
+                      className="group flex w-full cursor-pointer items-center justify-between gap-5 rounded-3xl border border-vanilla-200 bg-white px-5 py-4 text-left transition hover:border-vanilla-300 hover:bg-vanilla-100"
                     >
                       <div className="flex items-center gap-4">
                         <div className="relative h-12 w-12 overflow-hidden rounded-2xl border border-vanilla-200 bg-vanilla-100">
@@ -185,4 +185,3 @@ export function VenueModal({
     </AnimatePresence>
   );
 }
-
