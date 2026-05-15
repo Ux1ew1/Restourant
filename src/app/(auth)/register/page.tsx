@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form";
 
 import type { RegisterInput } from "@/lib/validations/auth.schema";
 import { registerSchema } from "@/lib/validations/auth.schema";
-import { PHONE_MASK_EXAMPLE } from "@/lib/validations/phone";
+import { formatPhoneInput, PHONE_MASK_EXAMPLE } from "@/lib/validations/phone";
 
 /**
  * Страница регистрации пользователя.
@@ -26,6 +26,7 @@ export default function RegisterPage() {
     defaultValues: { name: "", email: "", phone: "", password: "" },
     mode: "onSubmit",
   });
+  const phoneField = form.register("phone");
 
   const onSubmit = form.handleSubmit(async (values) => {
     setSubmitError(null);
@@ -117,7 +118,12 @@ export default function RegisterPage() {
             autoComplete="tel"
             className="mt-1.5 w-full rounded-xl border border-vanilla-300 bg-vanilla-50 px-4 py-2.5 text-sm text-vanilla-900 outline-none placeholder:text-vanilla-400 transition-colors duration-150 hover:border-vanilla-400 focus:border-vanilla-500 focus:bg-vanilla-50"
             placeholder={PHONE_MASK_EXAMPLE}
-            {...form.register("phone")}
+            {...phoneField}
+            onChange={(event) => {
+              const formatted = formatPhoneInput(event.target.value);
+              event.target.value = formatted;
+              phoneField.onChange(event);
+            }}
           />
           {form.formState.errors.phone?.message ? (
             <p className="mt-1 text-xs text-red-700">{form.formState.errors.phone.message}</p>
