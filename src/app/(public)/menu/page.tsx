@@ -11,6 +11,8 @@ import {
 
 import { MenuPageClient } from "./MenuPageClient";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(): Promise<Metadata> {
   const venue = await getPrimaryVenueSeoContext();
 

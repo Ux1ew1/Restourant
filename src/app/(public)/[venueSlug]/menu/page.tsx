@@ -13,6 +13,8 @@ type PageProps = {
   params: Promise<{ venueSlug: string }>;
 };
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { venueSlug } = await params;
   const venue = await getPublicVenueBySlug(venueSlug);

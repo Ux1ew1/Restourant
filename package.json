@@ -9,7 +9,7 @@
     "start": "next start",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
-    "deploy:vercel-build": "prisma migrate deploy && npm run build",
+    "deploy:vercel-build": "npm run build",
     "lint": "next lint",
     "format": "prettier . --write"
   },

@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { jsonWithPublicCache } from "@/lib/http-cache";
 
 export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 /**
  * @module /api/cities

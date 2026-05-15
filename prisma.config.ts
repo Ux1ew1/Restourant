@@ -10,7 +10,7 @@ const databaseUrl =
     ? process.env.DIRECT_URL
     : process.env.DATABASE_URL;
 
-if (!databaseUrl) {
+if (!databaseUrl && isPrismaMigrateCommand) {
   throw new Error("DATABASE_URL must be set for Prisma.");
 }
 
@@ -21,6 +21,6 @@ export default defineConfig({
     seed: "tsx prisma/seed.ts",
   },
   datasource: {
-    url: databaseUrl,
+    url: databaseUrl ?? "postgresql://prisma:prisma@localhost:5432/prisma",
   },
 });
