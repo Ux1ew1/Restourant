@@ -58,7 +58,7 @@ export default function RegisterPage() {
       return;
     }
 
-    router.push(signInRes?.url ?? "/");
+    router.push("/");
     router.refresh();
   });
 
