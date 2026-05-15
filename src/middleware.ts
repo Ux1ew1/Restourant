@@ -8,6 +8,22 @@ const authSecret =
   process.env.NEXTAUTH_SECRET ??
   (process.env.NODE_ENV !== "production" ? "dev-insecure-auth-secret" : undefined);
 
+async function getAuthToken(req: NextRequest) {
+  const secureToken = await getToken({
+    req,
+    secret: authSecret,
+    secureCookie: true,
+  });
+
+  if (secureToken) return secureToken;
+
+  return getToken({
+    req,
+    secret: authSecret,
+    secureCookie: false,
+  });
+}
+
 /**
  * Middleware для защиты маршрутов административной панели.
  *
@@ -16,7 +32,7 @@ const authSecret =
  */
 export default async function middleware(req: NextRequest) {
   const supabaseResponse = await updateSession(req);
-  const token = await getToken({ req, secret: authSecret });
+  const token = await getAuthToken(req);
   const pathname = req.nextUrl.pathname;
 
   if (!pathname.startsWith("/admin")) return supabaseResponse;
