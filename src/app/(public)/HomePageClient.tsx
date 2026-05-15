@@ -11,6 +11,7 @@ import { HomeMetadataEffect } from "@/components/home/HomeMetadataEffect";
 import { NewsBanner } from "@/components/home/NewsBanner";
 import { PopularProducts } from "@/components/home/PopularProducts";
 import { useVenue } from "@/hooks/useVenue";
+import type { City, Venue } from "@/store/venueStore";
 import type { HomeCategory, HomeNewsItem, HomePopularProduct } from "@/types/home";
 
 type HomeBlockError = {
@@ -19,9 +20,16 @@ type HomeBlockError = {
   categories?: string;
 };
 
-export function HomePageClient() {
+interface HomePageClientProps {
+  initialCity?: City | null;
+  initialVenue?: Venue | null;
+}
+
+export function HomePageClient({ initialCity = null, initialVenue = null }: HomePageClientProps = {}) {
   const { selectedCity, selectedVenue, openVenuePicker } = useVenue();
   const { data: session } = useSession();
+  const activeCity = initialCity ?? selectedCity;
+  const activeVenue = initialVenue ?? selectedVenue;
 
   const [news, setNews] = useState<HomeNewsItem[]>([]);
   const [popular, setPopular] = useState<HomePopularProduct[]>([]);
@@ -30,7 +38,7 @@ export function HomePageClient() {
   const [errors, setErrors] = useState<HomeBlockError>({});
 
   useEffect(() => {
-    const venueId = selectedVenue?.id;
+    const venueId = activeVenue?.id;
     if (!venueId) {
       setNews([]);
       setPopular([]);
@@ -97,17 +105,18 @@ export function HomePageClient() {
     })();
 
     return () => controller.abort();
-  }, [selectedVenue?.id]);
+  }, [activeVenue?.id]);
 
-  const hasVenue = Boolean(selectedVenue);
-  const storyTitle = selectedVenue?.storyTitle || "Итальянские традиции в каждом блюде";
+  const hasVenue = Boolean(activeVenue);
+  const venueBasePath = activeVenue ? `/${activeVenue.slug}` : "";
+  const storyTitle = activeVenue?.storyTitle || "Итальянские традиции в каждом блюде";
   const storyText =
-    selectedVenue?.storyText ||
+    activeVenue?.storyText ||
     "Мы вдохновлены уютными семейными ресторанами северной Италии и европейскими кулинарными традициями. Каждое блюдо - это сочетание качества, вкуса и любви к своему делу.";
 
   return (
     <>
-      <HomeMetadataEffect city={selectedCity} venue={selectedVenue} />
+      <HomeMetadataEffect city={activeCity} venue={activeVenue} />
 
       <div className="bg-[#f6f1ea] text-[#1a1a1a]">
         <section className="relative -mt-[65px] min-h-[calc(100svh+65px)] overflow-hidden bg-[#1a1a1a] pt-[65px] text-[#f6f1ea]">
@@ -130,29 +139,29 @@ export function HomePageClient() {
           >
             <div className="max-w-3xl">
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#c8a97e]">
-                {selectedCity?.name || "Добро пожаловать"}
+                {activeCity?.name || "Добро пожаловать"}
               </p>
               <h1 className="mt-5 font-serif text-5xl font-semibold leading-[0.98] text-[#f6f1ea] sm:text-7xl lg:text-8xl">
                 Настоящий вкус Италии и Европы
               </h1>
               <p className="mt-6 max-w-xl text-base leading-7 text-[#f6f1ea]/82 sm:text-lg">
                 Домашняя паста, свежие ингредиенты и атмосфера гостеприимства в заведении{" "}
-                {selectedVenue ? selectedVenue.name : "рядом с вами"}.
+                {activeVenue ? activeVenue.name : "рядом с вами"}.
               </p>
 
               <div className="mt-9 flex flex-wrap items-center gap-4">
                 <Link
-                  href="/menu"
+                  href={activeVenue ? `${venueBasePath}/menu` : "/menu"}
                   className="rounded-xl bg-[#c8a97e] px-7 py-3.5 text-sm font-bold uppercase tracking-wide text-[#1a1a1a] shadow-[0_16px_36px_rgba(200,169,126,0.3)] transition hover:bg-[#e0bf8d] hover:shadow-[0_20px_48px_rgba(200,169,126,0.38)]"
                 >
                   Смотреть меню
                 </Link>
                 <button
                   type="button"
-                  onClick={() => openVenuePicker(selectedCity ? "venue" : "city")}
+                  onClick={() => openVenuePicker(activeCity ? "venue" : "city")}
                   className="cursor-pointer rounded-xl border border-[#c8a97e]/55 px-7 py-3.5 text-sm font-semibold text-[#f6f1ea] transition hover:border-[#c8a97e] hover:bg-white/10"
                 >
-                  {selectedVenue ? "Сменить заведение" : "Выбрать заведение"}
+                  {activeVenue ? "Сменить заведение" : "Выбрать заведение"}
                 </button>
                 {session?.user?.role === "ADMIN" ? (
                   <Link href="/admin" className="rounded-xl border border-white/25 px-7 py-3.5 text-sm font-semibold text-[#f6f1ea] transition hover:bg-white/10">
@@ -161,8 +170,8 @@ export function HomePageClient() {
                 ) : null}
               </div>
 
-              {selectedVenue ? (
-                <p className="mt-6 text-sm text-[#f6f1ea]/65">{selectedVenue.address}</p>
+              {activeVenue ? (
+                <p className="mt-6 text-sm text-[#f6f1ea]/65">{activeVenue.address}</p>
               ) : null}
             </div>
           </motion.div>
@@ -190,10 +199,10 @@ export function HomePageClient() {
               <NewsBanner items={news} loading={loading} error={errors.news} />
             </div>
             <div className="mx-auto max-w-7xl px-4 sm:px-6">
-              <PopularProducts products={popular} loading={loading} error={errors.popular} />
+              <PopularProducts products={popular} loading={loading} error={errors.popular} basePath={venueBasePath} />
             </div>
 
-            {selectedVenue?.storyEnabled ? (
+            {activeVenue?.storyEnabled ? (
               <section id="restaurant-story" className="bg-white/55">
                 <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
                   <div className="relative min-h-[320px] overflow-hidden rounded-[28px] shadow-[0_22px_55px_rgba(26,26,26,0.16)]">
@@ -211,7 +220,7 @@ export function HomePageClient() {
                       {storyTitle}
                     </h2>
                     <p className="mt-5 max-w-2xl text-base leading-8 text-[#1a1a1a]/70">{storyText}</p>
-                    <Link href="/menu" className="mt-7 inline-flex rounded-xl bg-[#2f3a2f] px-6 py-3 text-sm font-semibold text-[#f6f1ea] transition hover:bg-[#243024]">
+                    <Link href={activeVenue ? `${venueBasePath}/menu` : "/menu"} className="mt-7 inline-flex rounded-xl bg-[#2f3a2f] px-6 py-3 text-sm font-semibold text-[#f6f1ea] transition hover:bg-[#243024]">
                       Узнать вкус ближе
                     </Link>
                   </div>
@@ -241,7 +250,7 @@ export function HomePageClient() {
               </div>
             </section>
 
-            {selectedVenue?.bookingEnabled ? (
+            {activeVenue?.bookingEnabled ? (
               <section id="booking" className="mx-auto max-w-7xl px-4 sm:px-6">
                 <div className="grid gap-6 rounded-[28px] bg-[#5a2e2e] px-6 py-8 text-[#f6f1ea] shadow-[0_20px_55px_rgba(90,46,46,0.22)] sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
                   <div>
@@ -265,7 +274,7 @@ export function HomePageClient() {
             ) : null}
 
             <div className="mx-auto max-w-7xl px-4 sm:px-6">
-              <CategoryNav categories={categories} loading={loading} error={errors.categories} />
+              <CategoryNav categories={categories} loading={loading} error={errors.categories} basePath={venueBasePath} />
             </div>
           </div>
         ) : (

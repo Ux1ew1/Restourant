@@ -12,6 +12,8 @@ interface CategoryNavProps {
   error?: string | null;
   /** Первая загрузка */
   loading?: boolean;
+  /** Базовый путь заведения, например `/central` */
+  basePath?: string;
 }
 
 /**
@@ -27,7 +29,8 @@ interface CategoryNavProps {
  * @example
  * <CategoryNav categories={cats} loading={loading} error={err} />
  */
-export function CategoryNav({ categories, error, loading }: CategoryNavProps) {
+export function CategoryNav({ categories, error, loading, basePath = "" }: CategoryNavProps) {
+  const menuPath = `${basePath}/menu`;
   if (loading && !categories.length) {
     return (
       <section aria-label="Категории меню">
@@ -68,14 +71,14 @@ export function CategoryNav({ categories, error, loading }: CategoryNavProps) {
         {categories.map((c) => (
           <Link
             key={c.id}
-            href={`/menu?category=${encodeURIComponent(c.slug)}`}
+            href={`${menuPath}?category=${encodeURIComponent(c.slug)}`}
             className="rounded-full border border-vanilla-300 bg-vanilla-50 px-4 py-2 text-sm font-medium text-vanilla-800 transition-colors hover:border-vanilla-500 hover:bg-white"
           >
             {c.name}
           </Link>
         ))}
         <Link
-          href="/menu"
+          href={menuPath}
           className="rounded-full border border-dashed border-vanilla-400 px-4 py-2 text-sm font-medium text-vanilla-600 transition-colors hover:border-vanilla-500 hover:text-vanilla-900"
         >
           Всё меню

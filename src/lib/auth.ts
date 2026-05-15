@@ -4,6 +4,11 @@ import bcrypt from "bcryptjs";
 
 import { prisma } from "@/lib/prisma";
 
+const authSecret =
+  process.env.AUTH_SECRET ??
+  process.env.NEXTAUTH_SECRET ??
+  (process.env.NODE_ENV !== "production" ? "dev-insecure-auth-secret" : undefined);
+
 /**
  * Конфигурация NextAuth (Auth.js) для аутентификации через Credentials.
  *
@@ -12,6 +17,7 @@ import { prisma } from "@/lib/prisma";
  * использовать на клиенте и в middleware.
  */
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  secret: authSecret,
   providers: [
     Credentials({
       name: "credentials",
@@ -72,4 +78,3 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
 });
-

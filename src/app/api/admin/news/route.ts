@@ -20,7 +20,7 @@ const newsSchema = z.object({
   imageUrl: imageUrlSchema("Некорректный URL").optional().or(z.literal("")),
   content: z.string().trim().max(2000).optional(),
   isActive: z.boolean().optional(),
-  venueId: z.string().optional(),
+  venueId: z.string().nullable().optional(),
 });
 
 export async function GET(request: Request): Promise<Response> {
@@ -30,7 +30,7 @@ export async function GET(request: Request): Promise<Response> {
   const venueId = url.searchParams.get("venueId") || undefined;
 
   const items = await prisma.newsItem.findMany({
-    where: venueId ? { venueId } : {},
+    where: venueId ? { OR: [{ venueId }, { venueId: null }] } : {},
     orderBy: { publishedAt: "desc" },
     select: { id: true, title: true, imageUrl: true, content: true, isActive: true, publishedAt: true, venueId: true },
   });

@@ -8,6 +8,7 @@ import { CategorySidebar } from "@/components/menu/CategorySidebar";
 import { ProductGrid } from "@/components/menu/ProductGrid";
 import { useCart } from "@/hooks/useCart";
 import { useVenue } from "@/hooks/useVenue";
+import type { City, Venue } from "@/store/venueStore";
 import type { MenuCategory, MenuProduct } from "@/types/menu";
 
 type CategoriesResponse = { ok: true; categories: MenuCategory[] } | { ok: false };
@@ -16,18 +17,26 @@ type ProductsResponse = { ok: true; products: MenuProduct[] } | { ok: false };
 /**
  * Клиентская страница меню: загрузка категорий и товаров, фильтр по query `category`.
  */
-export function MenuPageClient() {
+interface MenuPageClientProps {
+  initialCity?: City | null;
+  initialVenue?: Venue | null;
+}
+
+export function MenuPageClient({ initialCity = null, initialVenue = null }: MenuPageClientProps = {}) {
   const { selectedVenue, selectedCity, openVenuePicker } = useVenue();
   const { items, addItem, removeItem, updateQuantity } = useCart();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const activeCity = initialCity ?? selectedCity;
+  const activeVenue = initialVenue ?? selectedVenue;
+  const menuPath = activeVenue ? `/${activeVenue.slug}/menu` : "/menu";
 
   const [categories, setCategories] = useState<MenuCategory[]>([]);
   const [products, setProducts] = useState<MenuProduct[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const venueId = selectedVenue?.id ?? null;
+  const venueId = activeVenue?.id ?? null;
   const categoryParam = searchParams.get("category");
 
   const activeSlug = useMemo(() => {
@@ -38,9 +47,9 @@ export function MenuPageClient() {
   useEffect(() => {
     if (!categoryParam || !categories.length) return;
     if (!categories.some((c) => c.slug === categoryParam)) {
-      router.replace("/menu");
+      router.replace(menuPath);
     }
-  }, [categoryParam, categories, router]);
+  }, [categoryParam, categories, menuPath, router]);
 
   useEffect(() => {
     if (!venueId) {
@@ -93,7 +102,7 @@ export function MenuPageClient() {
 
   const handleAdd = useCallback(
     (product: MenuProduct) => {
-      if (product.isStopList || !selectedVenue) return;
+      if (product.isStopList || !activeVenue) return;
       addItem(
         {
           id: product.id,
@@ -102,13 +111,13 @@ export function MenuPageClient() {
           imageUrl: product.imageUrl,
           weight: product.weight,
           price: product.price,
-          venueId: selectedVenue.id,
+          venueId: activeVenue.id,
         },
         1,
         "",
       );
     },
-    [addItem, selectedVenue],
+    [addItem, activeVenue],
   );
 
   const getCartLineForProduct = useCallback(
@@ -170,7 +179,7 @@ export function MenuPageClient() {
           </p>
           <button
             type="button"
-            onClick={() => openVenuePicker(selectedCity ? "venue" : "city")}
+            onClick={() => openVenuePicker(activeCity ? "venue" : "city")}
             className="mt-7 cursor-pointer rounded-xl bg-[#c8a97e] px-6 py-3 text-sm font-bold uppercase tracking-wide text-[#1a1a1a] transition hover:bg-[#e0bf8d]"
           >
             Выбрать заведение
@@ -222,7 +231,7 @@ export function MenuPageClient() {
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(26,26,26,0.95)_0%,rgba(47,58,47,0.82)_52%,rgba(26,26,26,0.35)_100%)]" />
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
           <p className="text-xs font-bold uppercase tracking-[0.26em] text-[#c8a97e]">
-            {selectedVenue?.name || "ЮрЛа"}
+            {activeVenue?.name || "ЮрЛа"}
           </p>
           <h1 className="mt-4 max-w-3xl font-serif text-5xl font-semibold leading-[0.98] sm:text-7xl">
             Меню с итальянским характером
@@ -237,9 +246,9 @@ export function MenuPageClient() {
             <span className="rounded-full border border-[#c8a97e]/35 bg-white/8 px-4 py-2 text-[#f6f1ea]/82">
               {products.length} позиций
             </span>
-            {selectedVenue?.address ? (
+            {activeVenue?.address ? (
               <span className="rounded-full border border-[#c8a97e]/35 bg-white/8 px-4 py-2 text-[#f6f1ea]/82">
-                {selectedVenue.address}
+                {activeVenue.address}
               </span>
             ) : null}
           </div>
@@ -249,7 +258,7 @@ export function MenuPageClient() {
       <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-12 sm:px-6 lg:flex-row lg:items-start">
         <aside className="lg:sticky lg:top-24 lg:w-64 lg:shrink-0">
           <div className="rounded-[24px] border border-[#c8a97e]/25 bg-[#2f3a2f] p-3 shadow-[0_18px_42px_rgba(26,26,26,0.12)] lg:p-5">
-            <CategorySidebar categories={categories} activeSlug={activeSlug} />
+            <CategorySidebar categories={categories} activeSlug={activeSlug} basePath={menuPath} />
           </div>
         </aside>
 

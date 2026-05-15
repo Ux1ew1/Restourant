@@ -3,6 +3,11 @@ import { getToken } from "next-auth/jwt";
 
 import { updateSession } from "@/utils/supabase/middleware";
 
+const authSecret =
+  process.env.AUTH_SECRET ??
+  process.env.NEXTAUTH_SECRET ??
+  (process.env.NODE_ENV !== "production" ? "dev-insecure-auth-secret" : undefined);
+
 /**
  * Middleware для защиты маршрутов административной панели.
  *
@@ -11,7 +16,7 @@ import { updateSession } from "@/utils/supabase/middleware";
  */
 export default async function middleware(req: NextRequest) {
   const supabaseResponse = await updateSession(req);
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  const token = await getToken({ req, secret: authSecret });
   const pathname = req.nextUrl.pathname;
 
   if (!pathname.startsWith("/admin")) return supabaseResponse;

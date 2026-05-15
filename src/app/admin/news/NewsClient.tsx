@@ -19,7 +19,7 @@ export function AdminNewsClient() {
   const [items, setItems] = useState<NewsItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ title: "", imageUrl: "", content: "", isActive: true });
+  const [form, setForm] = useState({ title: "", imageUrl: "", content: "", isActive: true, forAll: true });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -41,13 +41,17 @@ export function AdminNewsClient() {
     const res = await fetch("/api/admin/news", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, venueId: selectedVenue.id, imageUrl: form.imageUrl || undefined }),
+      body: JSON.stringify({
+        ...form,
+        venueId: form.forAll ? null : selectedVenue.id,
+        imageUrl: form.imageUrl || undefined,
+      }),
     });
     const json = await res.json() as { ok: boolean };
     if (json.ok) {
       await fetchItems();
       setShowForm(false);
-      setForm({ title: "", imageUrl: "", content: "", isActive: true });
+      setForm({ title: "", imageUrl: "", content: "", isActive: true, forAll: true });
       setUploadError(null);
     }
     setIsSubmitting(false);
@@ -90,7 +94,13 @@ export function AdminNewsClient() {
     <div className="mx-auto max-w-3xl">
       <div className="flex items-center justify-between">
         <h1 className="font-serif text-2xl font-bold text-vanilla-900">Новости и баннеры</h1>
-        <button onClick={() => setShowForm(!showForm)} className="rounded-xl bg-vanilla-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-vanilla-400">
+        <button
+          onClick={() => {
+            if (!showForm) setForm({ title: "", imageUrl: "", content: "", isActive: true, forAll: true });
+            setShowForm(!showForm);
+          }}
+          className="rounded-xl bg-vanilla-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-vanilla-400"
+        >
           + Добавить
         </button>
       </div>
@@ -118,6 +128,10 @@ export function AdminNewsClient() {
           <label className="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" checked={form.isActive} onChange={(e) => setForm((f) => ({ ...f, isActive: e.target.checked }))} className="h-4 w-4" />
             <span className="text-sm text-vanilla-700">Опубликован</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" checked={form.forAll} onChange={(e) => setForm((f) => ({ ...f, forAll: e.target.checked }))} className="h-4 w-4" />
+            <span className="text-sm text-vanilla-700">Для всех</span>
           </label>
           <div className="flex gap-3">
             <button onClick={addItem} disabled={isSubmitting || isUploadingImage || !form.title.trim()} className="rounded-xl bg-vanilla-500 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">
@@ -149,6 +163,11 @@ export function AdminNewsClient() {
                 <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${item.isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
                   {item.isActive ? "Опубликован" : "Скрыт"}
                 </span>
+                {item.venueId === null ? (
+                  <span className="shrink-0 rounded-full bg-vanilla-100 px-2 py-0.5 text-xs font-medium text-vanilla-700">
+                    Для всех
+                  </span>
+                ) : null}
               </div>
               {item.content && <p className="mt-0.5 text-xs text-vanilla-500 line-clamp-1">{item.content}</p>}
               <p className="mt-1 text-xs text-vanilla-400">{new Date(item.publishedAt).toLocaleDateString("ru-RU")}</p>

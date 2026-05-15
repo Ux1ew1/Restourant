@@ -30,6 +30,47 @@ async function ensureNewsItem(data: {
   });
 }
 
+async function ensureVenue(data: {
+  cityId: string;
+  slug: string;
+  legacySlugs?: string[];
+  name: string;
+  address: string;
+  phone: string;
+}) {
+  const existing = await prisma.venue.findFirst({
+    where: {
+      cityId: data.cityId,
+      slug: { in: [data.slug, ...(data.legacySlugs ?? [])] },
+    },
+    select: { id: true },
+  });
+
+  if (existing) {
+    return prisma.venue.update({
+      where: { id: existing.id },
+      data: {
+        name: data.name,
+        slug: data.slug,
+        address: data.address,
+        phone: data.phone,
+        isActive: true,
+      },
+    });
+  }
+
+  return prisma.venue.create({
+    data: {
+      cityId: data.cityId,
+      name: data.name,
+      slug: data.slug,
+      address: data.address,
+      phone: data.phone,
+      isActive: true,
+    },
+  });
+}
+
 async function main() {
   const city = await prisma.city.upsert({
     where: { slug: "moskva" },
@@ -37,51 +78,45 @@ async function main() {
     create: { name: "Москва", slug: "moskva", isActive: true },
   });
 
-  const venue1 = await prisma.venue.upsert({
-    where: { cityId_slug: { cityId: city.id, slug: "center" } },
-    update: {},
-    create: {
-      name: "Restaurant Center",
-      slug: "center",
-      cityId: city.id,
-      address: "ул. Пример, 1",
-      phone: "+7 (999) 000-00-00",
-      isActive: true,
-    },
+  const venue1 = await ensureVenue({
+    cityId: city.id,
+    slug: "central",
+    legacySlugs: ["center"],
+    name: "Central",
+    address: "ул. Пример, 1",
+    phone: "+7 (999) 000-00-00",
   });
 
-  const venue2 = await prisma.venue.upsert({
-    where: { cityId_slug: { cityId: city.id, slug: "north" } },
-    update: {},
-    create: {
-      name: "Restaurant North",
-      slug: "north",
-      cityId: city.id,
-      address: "ул. Пример, 10",
-      phone: "+7 (999) 111-11-11",
-      isActive: true,
-    },
+  const venue2 = await ensureVenue({
+    cityId: city.id,
+    slug: "bistro",
+    legacySlugs: ["north"],
+    name: "Bistro",
+    address: "ул. Пример, 10",
+    phone: "+7 (999) 111-11-11",
   });
 
-  const venue3 = await prisma.venue.upsert({
-    where: { cityId_slug: { cityId: city.id, slug: "lapsha" } },
-    update: {},
-    create: {
-      name: "Лапша",
-      slug: "lapsha",
-      cityId: city.id,
-      address: "ул. Пример, 25",
-      phone: "+7 (999) 222-22-22",
-      isActive: true,
-    },
+  const venue3 = await ensureVenue({
+    cityId: city.id,
+    slug: "new-restaurant",
+    legacySlugs: ["lapsha"],
+    name: "New Restaurant",
+    address: "ул. Пример, 25",
+    phone: "+7 (999) 222-22-22",
   });
 
-  const adminEmail = "admin@example.com";
-  const passwordHash = await bcrypt.hash("admin12345", 10);
+  const adminEmail = process.env.SEED_ADMIN_EMAIL ?? "admin@example.com";
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD ?? "admin12345";
+  const passwordHash = await bcrypt.hash(adminPassword, 10);
 
   await prisma.user.upsert({
     where: { email: adminEmail },
-    update: {},
+    update: {
+      name: "Администратор",
+      phone: "+7 (900) 000-00-00",
+      passwordHash,
+      role: "ADMIN",
+    },
     create: {
       email: adminEmail,
       name: "Администратор",

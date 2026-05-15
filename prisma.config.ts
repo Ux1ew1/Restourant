@@ -3,7 +3,12 @@ import { defineConfig } from "prisma/config";
 
 loadEnvConfig(process.cwd());
 
-const databaseUrl = process.env.DATABASE_URL;
+const isPrismaMigrateCommand =
+  process.argv.includes("migrate") || process.argv.includes("db");
+const databaseUrl =
+  isPrismaMigrateCommand && process.env.DIRECT_URL
+    ? process.env.DIRECT_URL
+    : process.env.DATABASE_URL;
 
 if (!databaseUrl) {
   throw new Error("DATABASE_URL must be set for Prisma.");

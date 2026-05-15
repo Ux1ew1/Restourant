@@ -15,6 +15,8 @@ interface PopularProductsProps {
   error?: string | null;
   /** Загрузка */
   loading?: boolean;
+  /** Базовый путь заведения, например `/central` */
+  basePath?: string;
 }
 
 /**
@@ -30,7 +32,8 @@ interface PopularProductsProps {
  * @example
  * <PopularProducts products={hits} loading={loading} error={err} />
  */
-export function PopularProducts({ products, error, loading }: PopularProductsProps) {
+export function PopularProducts({ products, error, loading, basePath = "" }: PopularProductsProps) {
+  const menuPath = `${basePath}/menu`;
   if (loading && !products.length) {
     return (
       <section aria-label="Популярные позиции">
@@ -77,7 +80,7 @@ export function PopularProducts({ products, error, loading }: PopularProductsPro
           </h2>
         </div>
         <Link
-          href="/menu"
+          href={menuPath}
           className="hidden text-sm font-medium text-[#5a2e2e] underline-offset-4 hover:text-[#2f3a2f] hover:underline sm:inline"
         >
           Смотреть всё меню

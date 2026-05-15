@@ -75,43 +75,48 @@ export function buildMetadata({
 }
 
 export async function getPrimaryVenueSeoContext() {
-  return prisma.venue.findFirst({
-    where: {
-      isActive: true,
-      city: { isActive: true },
-    },
-    orderBy: { name: "asc" },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      address: true,
-      phone: true,
-      logoUrl: true,
-      city: { select: { name: true, slug: true } },
-      categories: {
-        where: { isActive: true },
-        orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          products: {
-            where: { isHidden: false },
-            orderBy: { name: "asc" },
-            select: {
-              id: true,
-              name: true,
-              description: true,
-              imageUrl: true,
-              price: true,
-              weight: true,
+  try {
+    return await prisma.venue.findFirst({
+      where: {
+        isActive: true,
+        city: { isActive: true },
+      },
+      orderBy: { name: "asc" },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        address: true,
+        phone: true,
+        logoUrl: true,
+        city: { select: { name: true, slug: true } },
+        categories: {
+          where: { isActive: true },
+          orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            products: {
+              where: { isHidden: false },
+              orderBy: { name: "asc" },
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                imageUrl: true,
+                price: true,
+                weight: true,
+              },
             },
           },
         },
       },
-    },
-  });
+    });
+  } catch (error) {
+    console.error("[seo] Failed to load primary venue context", error);
+    return null;
+  }
 }
 
 export function getVenueDescription(

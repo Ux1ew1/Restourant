@@ -16,13 +16,19 @@ export function Header() {
 
   const venueTitle = selectedVenue?.name ?? "Выберите заведение";
   const address = selectedVenue?.address ?? "Адрес появится после выбора точки";
+  const venueBasePath = selectedVenue ? `/${selectedVenue.slug}` : "";
+  const homeHref = selectedVenue ? venueBasePath : "/";
+  const menuHref = selectedVenue ? `${venueBasePath}/menu` : "/menu";
+  const storyHref = `${homeHref === "/" ? "" : homeHref}/#restaurant-story`;
+  const contactsHref = `${homeHref === "/" ? "" : homeHref}/#contacts`;
+  const bookingHref = `${homeHref === "/" ? "" : homeHref}/#booking`;
 
   return (
     <header className="sticky top-0 z-40 border-b border-[#c8a97e]/25 bg-[#1a1a1a]/75 text-[#f6f1ea] shadow-[0_12px_40px_rgba(26,26,26,0.18)] backdrop-blur-xl">
       <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 py-3 sm:px-6">
         <div className="flex min-w-0 items-center gap-4">
           <Link
-            href="/"
+            href={homeHref}
             className="font-serif text-2xl font-semibold tracking-tight text-[#f6f1ea] transition hover:text-[#c8a97e]"
             aria-label="На главную"
           >
@@ -40,16 +46,16 @@ export function Header() {
         </div>
 
         <nav className="hidden items-center gap-7 md:flex" aria-label="Основная навигация">
-          <Link href="/" className="text-sm font-medium text-[#f6f1ea]/85 transition hover:text-[#c8a97e]">
+          <Link href={homeHref} className="text-sm font-medium text-[#f6f1ea]/85 transition hover:text-[#c8a97e]">
             Главная
           </Link>
-          <Link href="/menu" className="text-sm font-medium text-[#f6f1ea]/85 transition hover:text-[#c8a97e]">
+          <Link href={menuHref} className="text-sm font-medium text-[#f6f1ea]/85 transition hover:text-[#c8a97e]">
             Меню
           </Link>
-          <Link href="/#restaurant-story" className="text-sm font-medium text-[#f6f1ea]/85 transition hover:text-[#c8a97e]">
+          <Link href={storyHref} className="text-sm font-medium text-[#f6f1ea]/85 transition hover:text-[#c8a97e]">
             О ресторане
           </Link>
-          <Link href="/#contacts" className="text-sm font-medium text-[#f6f1ea]/85 transition hover:text-[#c8a97e]">
+          <Link href={contactsHref} className="text-sm font-medium text-[#f6f1ea]/85 transition hover:text-[#c8a97e]">
             Контакты
           </Link>
         </nav>
@@ -59,7 +65,7 @@ export function Header() {
             {address}
           </p>
           <Link
-            href="/#booking"
+            href={bookingHref}
             className="rounded-xl bg-[#c8a97e] px-4 py-2 text-xs font-bold uppercase tracking-wide text-[#1a1a1a] shadow-[0_10px_24px_rgba(200,169,126,0.26)] transition hover:bg-[#e0bf8d]"
           >
             Забронировать
@@ -144,10 +150,10 @@ export function Header() {
 
               <div className="flex flex-col gap-2">
                 {[
-                  ["Главная", "/"],
-                  ["Меню", "/menu"],
-                  ["О ресторане", "/#restaurant-story"],
-                  ["Контакты", "/#contacts"],
+                  ["Главная", homeHref],
+                  ["Меню", menuHref],
+                  ["О ресторане", storyHref],
+                  ["Контакты", contactsHref],
                 ].map(([label, href]) => (
                   <Link
                     key={href}
@@ -161,7 +167,7 @@ export function Header() {
               </div>
 
               <Link
-                href="/#booking"
+                href={bookingHref}
                 className="block rounded-xl bg-[#c8a97e] px-4 py-3 text-center text-xs font-bold uppercase tracking-wide text-[#1a1a1a]"
                 onClick={() => setMobileOpen(false)}
               >
